@@ -1,0 +1,1797 @@
+---
+title: "After the Digital Storm"
+subtitle: "Post-COVID Attitudes & Behaviours Toward Cybersecurity & Digital Trust"
+author: "Ziad Harmanani, Rieley Hega, Tanjinul Hoque, Belinda Kwan, Christian Velasquez"
+date: '`r Sys.Date()`'
+output:
+  pdf_document: default
+---
+
+```{r setup presentation styles, include=FALSE}
+
+# Libraries ----
+
+# Core data wrangling + viz
+library(tidyverse)   # includes ggplot2, forcats, purrr, etc.
+library(janitor)
+library(reshape2)
+library(tibble)
+
+# Modelling and summaries
+library(caret)
+library(broom)
+library(estimatr)
+library(car)
+library(lmtest)
+library(modelsummary)
+library(mosaic)
+
+
+# Utilities
+library(glue)
+library(cli)
+
+```
+
+```{r Setup, include=FALSE}
+# Installing & Adding Libraries (Function) ----
+load_pkgs <- function(...) {
+  pkgs <- as.character(match.call(expand.dots = TRUE))[-1]
+  to_install <- pkgs[!pkgs %in% installed.packages()[, "Package"]]
+  if (length(to_install) > 0) {
+    install.packages(to_install)
+  }
+  invisible(lapply(pkgs, library, character.only = TRUE))
+}
+
+# Libraries List ----
+load_pkgs(tidyverse,
+          dplyr,
+          janitor,
+          tibble,
+          skimr,
+          purrr,
+          broom,
+          kableExtra,
+          patchwork,
+          knitr,
+          rlang,
+          forcats,
+          naniar,
+          scales,
+          vcd,
+          gt,
+          e1071,
+          tidymodels)
+
+# Serif Font Visualizations (Function) ----
+serif <- theme(
+  text = element_text(family = "serif", size = 10)
+)
+
+# Kable Column Adjustment (Function) ----
+col <- function(kbl, cols, width) {
+  if (length(width) == 1) {
+    width <- rep(width, length(cols))
+  }
+  for (i in seq_along(cols)) {
+    kbl <- kbl %>%
+      column_spec(cols[i], width = width[i])
+  }
+  kbl
+}
+```
+
+```{r Reading the OG File & Initial Cut, include=FALSE}
+
+# dfOG <- read.csv("cius_2022.csv")
+# 
+# df <- dfOG[ grepl(
+#   "PUMFID|LUC_RST|AGE_GRP|GENDER|ABM|EMP|EDU|FD_G020A|VISMIN|DIS_10|HINCQUIN|IMM_STA|UI_080|UI_10|UI_09|SP_",
+#   names(dfOG)
+# ) ]
+# 
+# write.csv(df, "cius_2022_cut.csv", row.names = FALSE)
+
+```
+
+```{r Reading Cut File, echo=FALSE}
+
+df <- read.csv("cius_2022_cut.csv")
+
+```
+
+```{r Variable Lists, echo=FALSE}
+
+# demographic ----
+varsDemo <- c("LUC_RST", "AGE_GRP", "GENDER", "ABM", "EMP", "EDU", "FD_G020A", "VISMIN", "DIS_10", "HINCQUIN", "IMM_STA")
+
+# demographic - binary ----
+varsDemoBinary <- c("GENDER", "ABM", "EMP", "VISMIN", "DIS_10", "IMM_STA")
+
+# demographic - multicat ----
+varsDemoCat <- c("LUC_RST", "AGE_GRP",  "EDU", "FD_G020A", "HINCQUIN")
+
+# cyber overall ----
+varsCyber <- names(df)[grepl("SP_010|SP_020|SP_050|SP_060|SP_070|SP_080|UI_080|UI_10|UI_09", names(df))]
+
+# cyber breakdown ----
+
+# varsData ----
+
+varsData <- names(df)[grepl("SP_010", names(df))]
+
+# varsID ----
+
+varsID <- names(df)[grepl("SP_020", names(df))]
+
+# varsInc ----
+
+varsInc <- names(df)[grepl("SP_050", names(df))]
+
+# varsRes ----
+
+varsRes <- names(df)[grepl("SP_070", names(df))]
+
+# varsPC ----
+
+varsPC <- names(df)[grepl("SP_080", names(df))]
+
+# trust ----
+
+varsTrust <- names(df)[grepl("SP_030|SP_040", names(df))]
+
+# positive ----
+
+varsDataPos <- setdiff(varsData, c("SP_010Y", "SP_010Z"))
+varsIDPos <- setdiff(varsID, c("SP_020Y", "SP_020Z"))
+varsIncPos <- setdiff(varsInc, "SP_050Z")
+varsResPos <- setdiff(varsRes, "SP_070Z")
+varsPCPos <- setdiff(varsPC,  "SP_080Z")
+
+```
+
+```{r Cleaning I, echo=FALSE}
+
+df <- df %>%
+  mutate(across(
+    everything(),
+    ~ ifelse(.x %in% c(96, 97, 98, 99), NA, .x)
+  ))
+
+df <- df %>%
+  mutate(across(
+    all_of(c(varsCyber, varsTrust, varsDemoBinary)),
+    ~ ifelse(.x %in% c(6, 7, 8, 9), NA, .x)
+  ))
+
+df <- df %>%
+  mutate(
+    EDU = ifelse(EDU %in% c(6, 7, 8, 9), NA, EDU)
+  )
+
+df <- df %>%
+  mutate(across(
+    all_of(c(varsCyber, varsDemoBinary)),
+    ~ ifelse(.x == 2 | .x == "2", 0, .x)
+  ))
+
+df <- df %>%
+  mutate(across(all_of(varsDemoCat), as.factor))
+
+```
+
+```{r Functions List, echo=FALSE}
+
+# Helper function to create frequency tables for binarized variables ----
+freqTabBinary <- function(data, vars, digits = 1) {
+  map_dfr(vars, function(v) {
+    x  <- data[[v]]
+    N  <- length(x)
+    n1 <- sum(x == 1, na.rm = TRUE)
+
+    tibble(
+      variable = v,
+      n_1      = n1,
+      pct_1    = round(100 * n1 / N, digits)
+    )
+  }) %>%
+    arrange(desc(pct_1))
+}
+
+# Helper: frequency plot for binarized variables (1 vs everything else) ----
+freqPlotBinary <- function(data, vars, digits = 1,
+                           x_lab = "Variable",
+                           y_lab = "Pct (%)",
+                           title = NULL) {
+
+  # Reuse the same logic as freqTabBinary to build a summary table
+  sum_tab <- map_dfr(vars, function(v) {
+    x  <- data[[v]]
+    N  <- length(x)
+    n1 <- sum(x == 1, na.rm = TRUE)
+
+    tibble(
+      variable = v,
+      n_1      = n1,
+      pct_1    = round(100 * n1 / N, digits)
+    )
+  }) %>%
+    arrange(desc(pct_1))
+
+  # Plot: variables ordered by pct_1, descending
+  ggplot(sum_tab, aes(x = reorder(variable, pct_1), y = pct_1)) +
+    geom_col(fill = "#4298f5") +
+    geom_text(aes(label = paste0(pct_1, "%")),
+              hjust = -0.1,
+              size = 3.5) +
+    coord_flip() +
+    expand_limits(y = max(sum_tab$pct_1) * 1.4) +  # add some space for labels
+    labs(
+      x = x_lab,
+      y = y_lab,
+      title = title
+    ) + theme_minimal() + serif + theme(plot.title = element_text(hjust = 0.5))
+}
+
+
+# Helper: frequency plots for one-column categorical variables ----
+
+freqPlotCat <- function(data, var, xlab = NULL, title = NULL) {
+  var_quo <- rlang::enquo(var)
+  
+  tab <- data %>%
+    count(!!var_quo, .drop = FALSE) %>%
+    mutate(pct = n / sum(n))
+  
+  ggplot(tab, aes(x = !!var_quo, y = pct)) +
+    geom_col(fill = "#4298f5") +
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+    scale_x_discrete(labels = function(x) paste("Group", x)) +
+    labs(
+      x = xlab %||% rlang::as_name(var_quo),
+      y = "Percent",
+      title = title
+    ) +
+    theme_minimal() + serif + theme(plot.title = element_text(hjust = 0.5))
+}
+
+
+# Function: Summarizing Chi-Square & Cohen's W ----
+
+catChiSum <- function(df, varList) {
+  
+  out <- map_dfr(varList, function(vName) {
+    v <- sym(vName)
+    
+    freqTable <- df %>%
+      filter(!is.na(!!v)) %>%
+      count(!!v, name = "n")
+    
+    chi <- chisq.test(freqTable$n)
+    
+    chiStat <- unname(chi$statistic)
+    chiDf   <- unname(chi$parameter)
+    chiP    <- chi$p.value
+    N       <- sum(freqTable$n)
+    
+    # Cohen's W (effect size)
+    effectW <- sqrt(chiStat / N)
+    
+    # Interpretation
+    effectLabel <- case_when(
+      is.na(effectW)      ~ NA_character_,
+      effectW < 0.10      ~ "negligible",
+      effectW < 0.30      ~ "small",
+      effectW < 0.50      ~ "medium",
+      TRUE                ~ "large"
+    )
+    
+    tibble(
+      variable      = vName,
+      nLevels       = nrow(freqTable),
+      chiSqDf       = chiDf,
+      chiSqStat     = round(chiStat, 2),
+      chiSqP        = ifelse(
+        chiP < 0.001,
+        "<0.001",
+        sprintf("%.3f", chiP)
+      ),
+      `Cohen's W`   = round(effectW, 3),
+      `Effect Size` = effectLabel
+    )
+  })
+  
+  # convert effect size to ordered factor
+  out$`Effect Size` <- factor(
+    out$`Effect Size`,
+    levels = c("negligible", "small", "medium", "large"),
+    ordered = TRUE
+  )
+  
+  # optional: sort by effect size smallest → largest
+  out <- arrange(out, `Effect Size`)
+  
+  return(out)
+}
+
+
+
+
+
+# Function: Bar Plots of Categorical Proportion ----
+propBarPlot <- function(dataFrame, var, xLabels, xLab = NULL) {
+  v <- enquo(var)
+  
+  if (is.null(xLab)) {
+    xLab <- quo_name(v)
+  }
+  
+  dataFrame %>%
+    drop_na(!!v) %>%
+    count(!!v) %>%
+    mutate(prop = n / sum(n)) %>%
+    ggplot(aes(x = !!v, y = prop)) +
+    geom_col(fill = "#0008a8") +
+    geom_text(
+      aes(label = percent(prop, accuracy = 1)),
+      vjust = -0.2,
+      size = 3
+    ) +
+    scale_x_discrete(labels = xLabels) +
+    scale_y_continuous(
+      labels = percent_format(accuracy = 1),
+      expand = expansion(mult = c(0, 0.1))  # add 10% headroom at top
+    ) +
+    labs(
+      x = xLab,
+      y = "Proportion"
+    ) +
+    coord_cartesian(clip = "off") +          # allow text outside panel
+    theme_minimal() +
+    theme(
+      plot.margin = margin(t = 10, r = 5, b = 5, l = 5)  # extra top margin
+    )
+}
+
+# Function: Summarizing Bootstrap for Categorical Variables----
+
+bootPropCatVar <- function(dataFrame, varList, nBoot = 1000) {
+  
+  map_dfr(varList, function(vName) {
+    v <- sym(vName)
+    
+    # original proportions
+    orig <- dataFrame %>%
+      drop_na(!!v) %>%
+      count(level = !!v, name = "n") %>%
+      mutate(prop = n / sum(n)) %>%
+      select(level, origProp = prop)
+    
+    # bootstrap
+    bootRes <- map_dfr(1:nBoot, function(i) {
+      samp <- dataFrame %>% slice_sample(n = nrow(dataFrame), replace = TRUE)
+      
+      samp %>%
+        drop_na(!!v) %>%
+        count(level = !!v, name = "n") %>%
+        mutate(prop = n / sum(n),
+               iter = i) %>%
+        select(level, iter, prop)
+    })
+    
+    # bootstrap mean props
+    bootMean <- bootRes %>%
+      group_by(level) %>%
+      summarise(bootMeanProp = mean(prop), .groups = "drop")
+    
+    # merge
+    merged <- full_join(orig, bootMean, by = "level") %>%
+      replace_na(list(origProp = 0, bootMeanProp = 0))
+    
+    # single summary row per variable
+    tibble(
+      variable     = vName,
+      avgAbsDiff   = mean(abs(merged$origProp - merged$bootMeanProp)),
+      maxAbsDiff   = max(abs(merged$origProp - merged$bootMeanProp)),
+      nLevels      = nrow(orig)
+    )
+  })
+}
+
+
+# Function: Creating Scores (Binary) ----
+
+makeScore1 <- function(data, vars, score_name) {
+  data %>%
+    mutate(
+      scoreCount = rowSums(
+        across(all_of(vars), ~ as.numeric(as.character(.x))),  # use the labels
+        na.rm = TRUE
+      ),
+      scorePossible = rowSums(
+        across(all_of(vars), ~ !is.na(as.numeric(as.character(.x)))),
+        na.rm = TRUE
+      ),
+      "{score_name}" := round(ifelse(
+        scorePossible > 0,
+        scoreCount / scorePossible,
+        NA_real_
+      ), 2)
+    ) %>%
+    select(-scoreCount, -scorePossible)
+}
+
+
+# Function: Creating Trust Scores ----
+
+makeTrustScore <- function(data, vars, score_name = "trustScore") {
+  data %>%
+    mutate(
+      # row-wise mean of 1–5 trust items
+      trust_mean_1to5 = rowMeans(
+        across(all_of(vars), ~ as.numeric(as.character(.x))),
+        na.rm = TRUE
+      ),
+      # rescale from 1–5 to 0–1
+      "{score_name}" := ifelse(
+        is.nan(trust_mean_1to5),
+        NA_real_,
+        (trust_mean_1to5 - 1) / 4
+      )
+    ) %>%
+    select(-trust_mean_1to5)
+}
+
+
+# Function: Numeric Summary Tables (central tendency) ----
+
+sumNumTabCent <- function(data, varList) {
+  
+  map_dfr(varList, function(v) {
+    x <- data[[v]]
+    n <- length(x)
+    
+    tibble(
+      variable    = v,
+      n           = sum(!is.na(x)),
+      mean        = mean(x, na.rm = TRUE),
+      sd          = sd(x, na.rm = TRUE),
+      median      = median(x, na.rm = TRUE),
+      min         = min(x, na.rm = TRUE),
+      max         = max(x, na.rm = TRUE),
+      pct_miss = round(sum(is.na(x)) / n * 100, 2)
+    )
+  })
+}
+
+
+
+# Function: Outliers ----
+
+sumNumTabOut <- function(df, varList) {
+  
+  map_dfr(varList, function(vName) {
+    x <- df[[vName]]
+    x <- x[!is.na(x)]
+    
+    n <- length(x)
+    if (n == 0) {
+      return(tibble(
+        variable      = vName,
+        n             = 0,
+        n_outliers    = NA_integer_,
+        pct_outliers  = NA_real_,
+        skewness      = NA_real_,
+        kurtosis      = NA_real_
+      ))
+    }
+    
+    # IQR outliers (Tukey rule)
+    q1  <- quantile(x, 0.25, na.rm = TRUE)
+    q3  <- quantile(x, 0.75, na.rm = TRUE)
+    iqr <- q3 - q1
+    lower <- q1 - 1.5 * iqr
+    upper <- q3 + 1.5 * iqr
+    
+    is_out       <- x < lower | x > upper
+    n_outliers   <- sum(is_out)
+    pct_outliers <- 100 * n_outliers / n
+    
+    # skewness & kurtosis
+    sk <- skewness(x, na.rm = TRUE, type = 2)
+    kt <- kurtosis(x, na.rm = TRUE, type = 2)
+    
+    tibble(
+      variable      = vName,
+      pct_outliers  = round(pct_outliers, 2),
+      skewness      = round(sk, 3),
+      kurtosis      = round(kt, 3)
+    )
+  })
+}
+
+
+
+
+# Function: Association Matrix ----
+
+cramersV <- function(tab) {
+  chi2 <- suppressWarnings(chisq.test(tab, correct = FALSE)$statistic)
+  n   <- sum(tab)
+  k   <- min(nrow(tab), ncol(tab))
+  as.numeric(sqrt(chi2 / (n * (k - 1))))
+}
+
+eta2 <- function(numericVar, factorVar) {
+  aovFit <- aov(numericVar ~ factorVar)
+  ss <- summary(aovFit)[[1]][, "Sum Sq"]
+  as.numeric(ss[1] / sum(ss))
+}
+
+assocMatrix <- function(df) {
+  # coerce character to factor so we treat them as categorical
+  df2 <- df %>%
+    mutate(across(where(is.character), as.factor))
+  
+  vars <- names(df2)
+  n <- length(vars)
+  
+  out <- matrix(NA_real_, nrow = n, ncol = n,
+                dimnames = list(vars, vars))
+  
+  for (i in seq_len(n)) {
+    for (j in seq_len(n)) {
+      v1 <- df2[[vars[i]]]
+      v2 <- df2[[vars[j]]]
+      
+      # diagonal
+      if (i == j) {
+        out[i, j] <- 1
+        next
+      }
+      
+      # numeric–numeric: Pearson r
+      if (is.numeric(v1) && is.numeric(v2)) {
+        out[i, j] <- suppressWarnings(
+          cor(v1, v2, use = "pairwise.complete.obs")
+        )
+      }
+      # numeric–factor: η²
+      else if (is.numeric(v1) && is.factor(v2)) {
+        good <- complete.cases(v1, v2)
+        out[i, j] <- eta2(v1[good], v2[good])
+      }
+      else if (is.factor(v1) && is.numeric(v2)) {
+        good <- complete.cases(v1, v2)
+        out[i, j] <- eta2(v2[good], v1[good])
+      }
+      # factor–factor: Cramér’s V
+      else if (is.factor(v1) && is.factor(v2)) {
+        tab <- table(v1, v2)
+        out[i, j] <- cramersV(tab)
+      } else {
+        out[i, j] <- NA_real_
+      }
+    }
+  }
+  
+  as.data.frame(out)
+}
+
+# Function: Association Heatmap ----
+
+assocHeatmap <- function(df, cutoff = 0.25) {
+  mat <- assocMatrix(df)
+  
+  matLong <- mat %>%
+    mutate(var1 = rownames(mat)) %>%
+    pivot_longer(
+      cols = -var1,
+      names_to  = "var2",
+      values_to = "value"
+    ) %>%
+    mutate(
+      var1 = factor(var1, levels = rownames(mat)),
+      var2 = factor(var2, levels = colnames(mat))
+    ) %>%
+    # keep lower triangle (including diagonal)
+    dplyr::filter(as.numeric(var1) >= as.numeric(var2)) %>%
+    # keep only associations with |value| >= cutoff
+    dplyr::filter(abs(value) >= cutoff) %>%
+    # drop factor levels that no longer appear
+    droplevels()
+  
+  ggplot(matLong, aes(x = var2, y = var1, fill = value)) +
+    geom_tile() +
+    scale_fill_gradient2(
+      name     = "Association",
+      low      = "blue",
+      mid      = "white",
+      high     = "red",
+      midpoint = 0,
+      limits   = c(-1, 1)
+    ) +
+    geom_text(aes(label = sprintf("%.2f", value))) +
+    labs(x = NULL, y = NULL) +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1)
+    )
+}
+
+
+# Function: Checking Linear Assumptions
+
+check_lm_assumptions <- function(model, data, model_name = "Model") {
+  
+  cat("\n=== ", model_name, " ===\n\n")
+  
+  # Convert lm_robust to regular lm if needed
+  if ("lm_robust" %in% class(model)) {
+    model <- lm(model$terms, data = data)
+  }
+  
+  # Set up 1 row, 2 columns
+  par(mfrow = c(1, 2))
+  
+  # Normality - Q-Q plot
+  qqnorm(residuals(model), main = paste("Q-Q Plot:", model_name), 
+         col = rgb(0, 0, 0, 0.25), pch = 16)
+  qqline(residuals(model), col = "red")
+  
+  # Homoscedasticity - Residuals vs Fitted
+  plot(fitted(model), residuals(model),
+       xlab = "Fitted Values", ylab = "Residuals",
+       main = paste("Residuals vs Fitted:", model_name),
+       col = rgb(0, 0, 0, 0.25), pch = 16)
+  abline(h = 0, col = "red")
+  
+  # VIF
+  cat("VIF:\n")
+  vif_values <- vif(model)
+  print(round(vif_values, 2))
+  
+  cat("\n")
+  
+  # Reset
+  par(mfrow = c(1, 1))
+}
+```
+
+```{r Recoding Labels, echo=FALSE}
+
+# LUC_RST ----
+
+labsLoc <- c(
+      "1" = "Urban",
+      "2" = "Rural/Small Town",
+      "3" = "PEI"
+    )
+
+# AGE_GRP ----
+
+labsAge <- c(
+      "1" = "15-24",
+      "2" = "25-34",
+      "3" = "35-44",
+      "4" = "45-54",
+      "5" = "55-64",
+      "6" = "65+"
+    )
+
+# HINCQUIN ----
+
+labsHINC <- c(
+  "1" = "<= ~$42K",
+  "2" = "~$42-72K",
+  "3" = "~$72-108K",
+  "4" = "~$108-164K",
+  "5" = ">= ~$164K)"
+)
+
+# EDU ----
+
+labsEdu <- c(
+  "1" = "HS or less",
+  "2" = "Post-Sec/Cert",
+  "3" = "Uni Degree"
+)
+
+# FD_G020A ----
+
+labsSat <- c(
+  "1"  = "0%",
+  "2"  = "10%",
+  "3"  = "20%",
+  "4"  = "30%",
+  "5"  = "40%",
+  "6"  = "50%",
+  "7"  = "60%",
+  "8"  = "70%",
+  "9"  = "80%",
+  "10"  = "90%",
+  "11" = "100%"
+)
+
+# labsBin ----
+
+labsBin <- c(
+  "0" = "No",
+  "1" = "Yes"
+)
+
+df <- df %>%
+  mutate(across(everything(), as.factor))
+
+```
+
+# I Overview
+
+# 1.1 Background
+The COVID-19 pandemic triggered an abrupt and unprecedented shift toward digital life in Canada. Between 2020 and 2022, daily activities such as work, financial transactions, education, and social engagement moved online at a scale and speed not previously seen. As public health restrictions eased and in-person routines resumed, Canadians were left navigating a hybrid environment, where digital systems remained deeply embedded in everyday life. This rapid digitization not only transformed online habits, but also reshaped how people perceived cyber security, digital risks, and the institutions that manage and protect their data.
+
+Examining cybersecurity attitudes and experiences in the immediate post-pandemic period is critical. Early evidence suggests that the pandemic widened digital inequalities, exposed new vulnerabilities, and increased public reliance on complex digital infrastructures. Yet less is known about how different demographic groups adapted after the “digital storm”: who continued to experience cyber incidents, who engaged in protective behaviors, and how trust in technologies and organizations evolved once emergency digital dependence subsided.
+
+This study investigates patterns of cybersecurity behavior, incident exposure, and digital trust in Canada in 2022 using the Canadian Internet Use Survey (CIUS), a nationally representative dataset. We focus on identifying which groups were more likely to encounter cyber incidents, how demographic factors shape protective behaviors and how cybersecurity experiences relate to digital trust in the post-COVID context.
+
+# 1.2 Research Question
+Two central questions guide the analysis:
+
+Who in Canada was more likely to experience or notice cyber incidents in the post‑COVID period, in 2022?
+How do Canadians feel about cybersecurity and digital trust after the pandemic, and how are they responding to the  risks and habits shaped by that period?
+
+These questions address both the distribution of digital harm and the behavioral and attitudinal dynamics that shape individuals’ security practices and trust online.
+
+# 1.3 Implications & Method
+
+## Potential Impact
+Identifying which groups are most vulnerable to cybersecurity risks (and how they respond to them) has meaningful implications for public policy and digital inclusion efforts. Insights from this study can inform targeted educational programs, resource allocation, and support strategies designed to reduce unequal exposure to cyber harm. Therefore, understanding patterns of protection, incident experience and trust can guide initiatives aimed at strengthening digital resilience and building a more equitable and trustworthy digital environment in Canada.
+
+## Methodology
+To investigate these questions, we analyze micro data from the 2022 Canadian Internet Use Survey (CIUS), a national Statistics Canada survey that captures Canadians’ digital behaviors, cybersecurity practices, incident experiences, and trust in technologies and institutions. The dataset includes 25,118 respondents and 1,342 variables, linking demographic characteristics to detailed cybersecurity and trust-related measures. From this high-dimensional dataset, we extract relevant variables and construct proportion-based cybersecurity and trust scores to summarize multi-item behaviors without losing conceptual nuance. These derived measures form the basis for exploratory analysis and predictive modelling.
+
+# II Exploratory Data Analysis
+
+# 2.1 The Original Dataset
+The 2022 Canadian Internet Use Survey (CIUS) contains a wide array of variables describing respondents’ digital behaviors, cybersecurity practices, and socio-demographic characteristics. Before analysis, we conducted an initial audit of missing values and response patterns. Across the full dataset, 14.72% of responses fell into non-informative categories such as Valid Skip, Don’t Know, Refusal, or Not Stated. These patterns are typical of large-scale surveys involving complex behavioral items, but they underscore the need for careful pre-processing.
+
+The CIUS features two broad types of variables relevant to this study:
+
+Demographic variables, capturing characteristics such as age, gender, income, education, immigrant status, visible minority status, and disability.
+
+Cybersecurity and trust-related variables, including protection behaviors, incident experiences, post-incident responses, financial impact, and trust in technologies and organizations.
+
+Several categories, such as device types, social media activities, online government services, e-commerce behavior, and detailed digital skills, were excluded from the present analysis because they were either out of scope or not directly tied to our research questions.
+
+# 2.2 Initial Variables of Interest
+
+| Cyber Security                  | Trust                  | Demographics              |
+|---------------------------------|------------------------|---------------------------|
+| Personal Data Protection        | Trust in Technologies  | Age group                 |
+| ID Verification Measures        | Trust in Organizations | Gender                    |
+| Cyber security Incidents        |                        | Location density          |
+| Financial Loss                  |                        | Family income quintile    |
+| Post-Incident Actions           |                        | Highest education         |
+| PC/Laptop Protection            |                        | Life satisfaction         |
+|                                 |                        | Employment status         |
+|                                 |                        | Immigrant status          |
+|                                 |                        | Visible minority          |
+|                                 |                        | Disability status         |
+|                                 |                        | Indigenous identity       |
+
+# 2.3 Pain Point
+
+## Too-Granular Variables
+A major feature of the CIUS is its extensive use of “select all that apply” questions. Each individual response option becomes a separate binary column (e.g., SP_010A, SP_010B, SP_010C), leading to extremely high dimensional  and sparse variables. For example, the Personal Data Protection category (SP_010) consists of items such as:
+
+**Personal Data Protection (SP_010)**
+SP_010A: Limited access to location
+SP_010B: Refused data use for ads
+SP_010C: Checked website security
+SP_010D: Changed privacy settings
+SP_010Y: Don’t know
+SP_010Z: None of these activities
+
+This structure provides detailed behavioral data but complicates statistical modelling and interpretability.
+
+### Advantages of High-Granularity Data
+Allows fine-grained analysis of specific actions or experiences
+Preserves the full nuance of respondents’ digital behaviours
+Offers flexibility in constructing custom groupings or derived indicators
+
+### Disadvantages
+Produces sparse matrices that are difficult to visualize and model
+Increases risk of overfitting in predictive models
+Obscures broader behavioral patterns without variable reduction
+Multiplies the number of comparisons, complicating inferential interpretation
+These trade-offs motivated the development of new, more interpretable summary measures.
+
+# 2.4 Deriving New Variables
+
+We derived new variables to reduce hyper-granularity and find candidates for predictive modelling. 
+
+### a. Binarized Variables
+For some item groups, we constructed binary indicators coded as 1 if the respondent selected any protective action (excluding “None”) and 0 otherwise. This reduction simplifies modelling of general behavior categories while preserving their patterns.
+
+### b. Simplifying Post-Incident Actions
+Items in SP_070A-G were grouped into broader categories (for example, reporting actions, security changes, account cleanup). This approach identifies response tendencies without relying on highly granular action-specific variables.
+
+### c. Simplifying Incident Types
+Incident items (SP_050A-J) were aggregated into higher-level categories reflecting forms of cyberharm, such as fraud-related incidents, account compromise, or malicious content. These groupings highlight major incident patterns encountered by respondents.
+
+### d. Numeric Scores
+The primary derived measures used in the modelling stage were proportion based scores that summarize the number of selected behaviors relative to the total relevant options. These include:
+
+  datSecScore: Proportion of data-protection behaviors
+  idSecScore: Proportion of ID-security measures
+  pcSecScore: Proportion of PC/laptop protection behaviors
+  expoScore: Proportion of cybersecurity incidents encountered
+  responseScore: Proportion of post-incident actions taken
+  trustScore: Average trust level across technologies and organizations
+
+By summarizing categories into single proportion or change scores, we aimed to reduce hyper-granularity while preserving the intensity or breadth of behaviors and experiences. However, some of these derived variables overlap because they use the same source columns to help us consider which data framing works best on the available variables. We chose to work with the demographic variables and numerical scores derived from the cyber security and trust items, rather than the simplified categories or binary variables. The score-based approach allows us to reduce hyper-granularity while still preserving the underlying scale, nuance and proportional information embedded in the original survey responses.
+
+```{r Creating Numeric Variables (Scores), echo=FALSE}
+
+# Creating Numeric Binary Scores ----
+
+df <- df %>%
+  makeScore1(varsDataPos, "datSecScore") %>%
+  makeScore1(varsIDPos, "idSecScore") %>%
+  makeScore1(varsPCPos, "pcSecScore") %>%
+  makeScore1(varsIncPos, "expoScore") %>%
+  makeScore1(varsResPos, "responseScore")
+
+
+# Creating Trust Scores ----
+
+df <- makeTrustScore(df, varsTrust, "trustScore")
+
+
+```
+
+# 2.5 Categorical Variables (Demographics)
+
+## Chi-Square Tests
+
+```{r Chi-Square Tests, echo=FALSE}
+
+# Calling the Function
+
+kable(catChiSum(df, varsDemo), digits=4, align = "r") 
+
+```
+We evaluated associations between demographic categories and cybersecurity-related binary indicators using chi-square tests of independence. Many demographic variables show statistically significant relationships with cybersecurity measures, a pattern that reflects both substantive differences between subgroups and the large sample size, which increases power to detect small effects. Key results include very large chi-square statistics and substantial effect sizes for place-based and demographic variables: for example, location density (LUC_RST), age group (AGE_GRP), Indigenous identity (ABM), visible minority (VISMIN), immigrant status (IMM_STA), and disability status (DIS_10) all produced chi-square statistics and Cohen’s W indicating large effects. Other predictors such as education (EDU) and income quintile (HINCQUIN) exhibited smaller but still statistically significant associations. These results are reported in tabular form in the appendix and discussed below. 
+
+The large chi-square values for some demographic variables, such as age, Indigenous status and disability, predominantly reflect persistent patterns of different exposure and participation in digital life. Because chi-square tests are sensitive to sample size, we also report effect-size estimates (Cohen’s W) to contextualize practical significance; several variables show non-trivial effect sizes that warrant substantive attention rather than simple dismissal as sample-size artifacts. 
+
+## Visualizations of Proportion
+
+```{r Categorical Visualizations I, echo=FALSE}
+
+# Calling Proportion Bar Plots ----
+
+pbp1 <- propBarPlot(df, LUC_RST, labsLoc, "Location Density")
+pbp2 <- propBarPlot(df, AGE_GRP, labsAge, "Age Group")
+pbp3 <- propBarPlot(df, HINCQUIN, labsHINC, "Household Income Quintile")
+pbp4 <- propBarPlot(df, EDU, labsEdu, "Highest Education Level")
+
+# Patchwork ----
+
+(pbp1 | pbp2) /
+(pbp3 | pbp4)
+```
+
+```{r Categorical Visualizations II, echo=FALSE}
+
+# Calling Proportion Bar Plots ----
+
+pbp5 <- propBarPlot(df, IMM_STA, labsBin, "Immigration Status")
+pbp6 <- propBarPlot(df, VISMIN, labsBin, "Visible Minority")
+pbp7 <- propBarPlot(df, DIS_10, labsBin, "Disability")
+pbp8 <- propBarPlot(df, ABM, labsBin, "Indigenous Identity")
+
+# Patchwork ----
+
+(pbp5 | pbp6) /
+(pbp7 | pbp8)
+```
+
+Five proportion bar charts present the distribution of major demographic groups in the dataset. 
+document. Together, these visualizations help clarify who is represented in the survey and what types of digital experiences we might expect across groups.
+
+Across these figures, several patterns stand out. First, the sample is strongly urban, which aligns with general population patterns but also hints that many respondents likely have greater exposure to digital systems and potentially more opportunities for cybersecurity incidents. Age and education distributions show broad representation but cluster around mid-adult age groups and individuals with post-secondary training, which is a population that is typically more active online and more likely to use multiple digital platforms. At the same time, several equity-relevant groups (immigrant, visible minority, Indigenous, disability status) appear in smaller proportions, underscoring the importance of treating their model estimates cautiously while still recognizing their relevance to understanding digital inequality.
+
+Overall, these visualizations clarify the demographic landscape of the dataset and ensure that subsequent analyses are interpreted in the context of the sample’s population structure.
+
+```{r Categorical Visualizations III, echo=FALSE}
+
+# Calling Proportion Bar Plots ----
+
+pbp9 <- propBarPlot(df, FD_G020A, labsSat, "Life Satisfaction")
+
+# Patchwork ----
+
+(pbp9)
+```
+A particularly notable pattern is the under-representation of respondents reporting life satisfaction below 70%. This gap suggests the dataset captures relatively more individuals with moderate-to-high wellbeing. Since life satisfaction correlates with stress, risk perception, and digital confidence, this imbalance likely shapes how cybersecurity habits and trust levels appear in the analyses.
+
+These visual patterns also point to broader limitations in survey reach. Like many national online-behaviour surveys, the CIUS may not fully capture groups who face structural barriers to digital access, such as individuals with very low income, unstable housing, limited literacy or inconsistent internet access. This limitation is essential when interpreting outcome differences: some findings may reflect who participated in the survey as much as underlying differences in cybersecurity behavior.
+
+# 2.6 The Derived Scores
+We constructed six continuous, proportion-based scores from grouped CIUS items to summarize multi-item behavior and attitude domains. Each score is scaled between 0 and 1 (with the exception being trustScore, with a range of -1 to 1), where higher values indicate more protective behaviors, greater exposure, stronger response activity, or higher trust:
+
+```{r table - derived scores, echo=FALSE}
+
+derived_scores <- data.frame(
+  Score = c(
+    "datSecScore",
+    "idSecScore",
+    "pcSecScore",
+    "expoScore",
+    "responseScore",
+    "trustScore"
+  ),
+  Name = c(
+    "Data Protection Score",
+    "ID Security Score",
+    "PC Protection Score",
+    "Exposure Score",
+    "Response Score",
+    "Trust Score"
+  ),
+  Description = c(
+    "Proportion of data-protection actions",
+    "Proportion of ID-security measures",
+    "Proportion of device-protection measures",
+    "Proportion of incidents encountered",
+    "Proportion of post-incident actions",
+    "Average trust across trust ratings"
+  )
+)
+
+kable(derived_scores, align = "l") 
+
+```
+
+These derived scores preserve the multi-dimensionality of the original items while reducing sparsity and enabling parametric modelling.
+
+# 2.7 Numerical Variables (Scores)
+## Central Tendency of Scores
+
+```{r Table: Numeric Summary Table (Central Tendency), echo=FALSE}
+
+varsScores <- c("datSecScore","idSecScore","pcSecScore","expoScore","responseScore","trustScore")
+
+knitr::kable(sumNumTabCent(df,varsScores), digits=2) 
+
+```
+
+Across the sample, respondents report moderate engagement in data protection and trust, lower uptake of ID/device protection, limited incident exposure, and modest post-incident activity among those who experienced incidents. The high missingness for responseScore is expected and arises because many respondents did not report any incidents; treating missingness appropriately (for example, conditioning on incident experience or using pairwise approaches) is important for inference
+
+## Visualizing Scores
+
+```{r Density Plots, echo=FALSE, warning = FALSE}
+
+hist1 <- ggplot(df, aes(x=datSecScore)) + 
+  geom_density(fill="#0008a8", alpha=0.5, color="#0008a8", bw=0.25) +
+  theme_minimal()
+
+hist2 <- ggplot(df, aes(x=idSecScore)) + 
+  geom_density(fill="#0008a8", alpha=0.5, color="#0008a8", bw=0.25) +
+  theme_minimal()
+
+hist3 <- ggplot(df, aes(x=pcSecScore)) + 
+  geom_density(fill="#0008a8", alpha=0.5, color="#0008a8", bw=0.25) +
+  theme_minimal()
+
+hist4 <- ggplot(df, aes(x=expoScore)) + 
+  geom_density(fill="#0008a8", alpha=0.5, color="#0008a8", bw=0.25) +
+  theme_minimal()
+
+hist5 <- ggplot(df, aes(x=responseScore)) + 
+  geom_density(fill="#0008a8", alpha=0.5, color="#0008a8", bw=0.25) +
+  theme_minimal()
+
+hist6 <- ggplot(df, aes(x=trustScore)) + 
+  geom_density(fill="#0008a8", alpha=0.5, color="#0008a8", bw=0.25) +
+  theme_minimal()
+
+
+(hist1 | hist2 | hist3) /
+(hist4 | hist5 | hist6)
+
+```
+*Density plots of derived cybersecurity and trust scores (datSecScore, idSecScore, pcSecScore, expoScore, responseScore, trustScore). Note: density calculations exclude non-finite values; responseScore visualizations restricted to respondents reporting at least one incident.*
+
+# III Predictive Modelling
+
+```{r Creating the Models, echo=FALSE}
+
+# Get Sig Coefs from Model Summary ----
+
+getSigCoefs <- function(model, alpha = 0.05, include_intercept = FALSE) {
+  tidy_model <- tidy(model)
+  
+  tidy_model %>%
+    { if (!include_intercept) filter(., term != "(Intercept)") else . } %>%
+    filter(!is.na(p.value), p.value < alpha) %>%
+    arrange(desc(abs(estimate))) %>%
+    mutate(
+      p.value = dplyr::case_when(
+        p.value < 0.001 ~ "p < 0.001",
+        p.value < 0.01  ~ "p < 0.01",
+        p.value < 0.05  ~ "p < 0.05",
+        TRUE            ~ sprintf("p = %.3f", p.value)
+      )
+    )
+}
+
+
+# Run Models ----
+
+
+options(scipen = 999)
+
+mod1 <- lm(
+  formula = reformulate(varsDemo, response = "trustScore"),
+  data    = df
+)
+
+
+mod2 <- lm(
+  formula = reformulate(varsDemo, response = "expoScore"),
+  data    = df
+)
+
+mod3 <- lm(
+  formula = reformulate(varsDemo, response = "datSecScore"),
+  data    = df
+)
+
+
+mod4 <- lm(
+  formula = reformulate(varsDemo, response = "idSecScore"),
+  data    = df
+)
+
+
+mod5 <- lm(
+  formula = reformulate(varsDemo, response = "pcSecScore"),
+  data    = df
+)
+
+mod6 <- lm(
+  formula = reformulate(varsDemo, response = "responseScore"),
+  data    = df
+)
+
+mod7 <- lm(trustScore ~ expoScore + datSecScore + idSecScore + pcSecScore + responseScore, df)
+
+
+```
+
+# 3.1 Our Main Models
+
+We estimated seven regression models, each examining how demographic characteristics shape cybersecurity behaviours, incident exposure, digital trust, and post-incident actions. Models 1–6 focus on demographic effects, while Model 7 evaluates how the constructed cybersecurity scores collectively predict trust.
+
+*Model 1*. `trustScore` ~ Demographics
+*Model 2*. `expoScore` ~ Demographics 
+*Model 3*. `datSecScore` ~ Demographics
+*Model 4*. `idSecScore` ~ Demographics
+*Model 5*. `pcSecScore` ~ Demographics
+*Model 6*. `responseScore` ~ Demographics 
+*Model 7*. `trustScore`~ All Other Scores
+
+Each model uses categorical demographic factors (age, gender, income, education, immigrant status, visible minority status, disability status, Indigenous identity, employment status, location type, life satisfaction) to estimate how different social groups vary in cybersecurity behavior, vulnerability, and trust.
+
+Starting with Model 1 (trustScore ~ Demographics), we found that digital trust increases across the higher life-satisfaction groups, while respondents in the older age groups show slightly lower trust overall.
+
+In Model 2 (expoScore ~ Demographics), we found that exposure to cybersecurity incidents increased across the higher education groups, while respondents in the higher life-satisfaction groups reported fewer incidents.
+
+Model 3 (datSecScore ~ Demographics) showed that personal data-protection behaviors decreased across the older age groups and increased across the higher education groups.
+
+Model 4 (idSecScore ~ Demographics) showed a similar pattern for ID-security practices—older age groups adopted fewer measures, and higher education groups adopted more.
+
+In Model 5 (pcSecScore ~ Demographics), we found that PC and laptop protection was strongest among the higher education groups, with smaller increases among men and among respondents in the higher life-satisfaction groups.
+
+Model 6 (responseScore ~ Demographics) showed that disabled respondents, Indigenous respondents, employed people, and higher education groups were more likely to take action after experiencing a cyber incident.
+
+Finally, Model 7 (trustScore ~ All other scores) showed that for every unit increase in ID-security practices trust increased, while greater exposure to incidents and stronger data-protection behaviors both predicted lower trust. Apologies for the typo on the screen—model seven is not trust regressed on demographics but rather trust regressed on the other scores.
+
+# 3.2 Testing Assumptions
+
+### Model Performance and Generalization
+We evaluated seven linear regression models using a train-test split approach to assess both model performance and generalization capability. Models 1 through 6 predict various cybersecurity behavior and incident scores from demographic predictors, while Model 7 examines how trust scores relate to the composite security behavior scores. 
+
+Across all seven models, the training and testing metrics demonstrate remarkably close alignment, indicating minimal evidence of overfitting. The RMSE values show only marginal differences between training and testing sets, with test RMSE consistently within 0.001-0.003 units of training RMSE. Similarly, MAE values remain stable across train-test splits, and R square values show negligible degradation from training to testing. This pattern strongly suggests that each model generalizes effectively to unseen data, capturing genuine relationships in the data rather than merely fitting noise or idiosyncrasies present in the training set.
+
+### Assumption testing
+
+```{r Assumption Function, echo=FALSE}
+plot_assumptions <- function(model, data, model_name = "Model") {
+  
+  # Convert lm_robust to regular lm if needed
+  if ("lm_robust" %in% class(model)) {
+    model <- lm(model$terms, data = data)
+  }
+  
+  # Set up 1 row, 2 columns (side by side)
+  par(mfrow = c(1, 2), mar = c(4, 4, 3, 2))
+  
+  # Normality - Q-Q plot
+  qqnorm(residuals(model), main = paste("Q-Q Plot:", model_name), 
+         col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6)
+  qqline(residuals(model), col = "red")
+  
+  # Homoscedasticity - Residuals vs Fitted
+  plot(fitted(model), residuals(model),
+       xlab = "Fitted Values", ylab = "Residuals",
+       main = paste("Residuals vs Fitted:", model_name),
+       col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6)
+  abline(h = 0, col = "red")
+  
+  # Reset
+  par(mfrow = c(1, 1), mar = c(5, 4, 4, 2))
+}
+
+check_vif <- function(model, data) {
+  
+  # Convert lm_robust to regular lm if needed
+  if ("lm_robust" %in% class(model)) {
+    model <- lm(model$terms, data = data)
+  }
+  
+  vif_values <- vif(model)
+  
+  # Extract VIF values
+  if (is.matrix(vif_values)) {
+    vif_vec <- round(vif_values[, ncol(vif_values)], 2)
+  } else {
+    vif_vec <- round(vif_values, 2)
+  }
+  
+  # Find max VIF
+  max_vif <- max(vif_vec)
+  max_var <- names(which.max(vif_vec))
+  
+  # Print summary
+  cat("VIF Check:\n")
+  cat("Maximum VIF =", max_vif, "for", max_var, "\n")
+  
+  if (max_vif > 10) {
+    cat("High multicollinearity detected (VIF > 10)\n")
+  } else if (max_vif > 5) {
+    cat("Moderate multicollinearity detected (VIF > 5)\n")
+  } else {
+    cat("No concerning multicollinearity (all VIF < 5)\n")
+  }
+  
+  # Return VIF values invisibly in case you want to see them
+  invisible(vif_vec)
+}
+```
+
+To ensure the validity and reliability of our regression models, we conducted comprehensive diagnostic tests examining four key assumptions of linear regression: absence of multicollinearity, independence of residuals, normality of residuals, and homoscedasticity. The following sections present these diagnostic results and their implications for model validity.
+
+### Multicolinearity Assessment: VIF
+Across Models 1 through 6, which use demographic predictors, all VIF values remain well within acceptable bounds. The vast majority of predictors exhibit VIF values between 1.0 and 1.9. The highest VIF values occur for age groups (AGE_GRP), which reach approximately 1.85, followed by immigrant status (IMM_STA) at 1.51, and income quintiles (HINCQUIN) and education levels (EDU) around 1.24-1.26. These modest values reflect the natural correlation structure among demographic variables. Importantly, all values remain well below the threshold of concern at 5, confirming that multicollinearity is not an issue.
+
+For Model 7, which uses continuous security score predictors, VIF values are remarkably low, ranging from 1.27 to 1.43. This indicates that the different security behavior dimensions capture distinct aspects of cybersecurity engagement rather than being redundant measures.
+
+Overall, the VIF analysis demonstrates that multicollinearity is not a concern in any of our models. Each predictor provides distinct information, and coefficient estimates are stable and interpretable.
+
+### Independence of Residuals: Durbin-Watson Test
+The Durbin-Watson (DW) test assesses whether residuals are autocorrelated—that is, whether the error from one observation is systematically related to errors from other observations. The DW statistic ranges from 0 to 4, with values near 2 indicating no autocorrelation, values substantially below 2 suggesting positive autocorrelation, and values substantially above 2 indicating negative autocorrelation. 
+
+Our Durbin-Watson test results consistently indicate that residual autocorrelation is not a concern across all seven models. Model 1 yields a DW statistic of 1.998 (p = 0.44), Model 2 produces DW = 2.004 (p = 0.63), Model 3 shows DW = 2.0205 (p = 0.94), Model 4 returns DW = 2.002 (p = 0.55), Model 5 gives DW = 2.015 (p = 0.86), Model 6 shows DW = 1.995 (p = 0.39), and Model 7 yields DW = 2.005 (p = 0.62). All DW statistics fall remarkably close to the ideal value of 2.0, and all p-values substantially exceed conventional significance thresholds, indicating failure to reject the null hypothesis of no autocorrelation.
+
+These results are entirely appropriate given the cross-sectional nature of our data. Since observations represent different individuals surveyed at a single time point rather than repeated measurements over time, there is no inherent temporal or spatial ordering that would produce systematic correlation among residuals. The absence of significant autocorrelation confirms that residuals behave as independent random errors, satisfying a key assumption of ordinary least squares regression. This independence validates our standard errors and hypothesis tests, ensuring that inferences about predictor significance are trustworthy.
+
+### Normality of Residuals
+The normality assumption states that model residuals should follow a normal distribution. While regression is generally robust to modest violations of normality, especially with large samples, severe departures can affect the validity of confidence intervals and hypothesis tests. We assessed normality through visual inspection of Q-Q plots.
+
+Visual examination of Q-Q plots reveals varying degrees of adherence to normality across models. Models 1 and 7 show the strongest adherence to normality, with points clustering closely along the diagonal reference line throughout most of the distribution. Model 7 exhibits minor deviations in the extreme tails, typical in large datasets, but overall maintains good normality.
+
+Model 5 displays moderate departures from normality, with some deviation from the diagonal line. Models 2, 3, 4, and 6 show more substantial departures from normality. These models exhibit distinctive banding or stratification patterns and S-shaped curvature in their Q-Q plots. For Models 3, 4, and 6, these patterns arise because their outcome variables—data security, ID security, and response scores—are proportion-based measures constructed from multiple binary indicators. Since respondents can only achieve certain discrete values, the distributions are inherently discrete rather than continuous, producing the observed patterns.
+
+With our large sample size, the Central Limit Theorem ensures that sampling distributions of coefficient estimates remain approximately normal even when residuals deviate from perfect normality. The deviations observed in Models 3, 4, and 6 are structural features of working with proportion scores rather than indicators of model misspecification.
+
+### Homoscedacityy: Constant variance of residuals
+The homoscedasticity assumption requires that residual variance remains constant across all levels of predictor variables. Violations, termed heteroscedasticity, do not bias coefficient estimates but can affect standard errors, potentially leading to incorrect inferences about statistical significance.
+The Residuals vs. Fitted plots provide visual evidence about variance constancy. Models 1 and 7 show relatively uniform scatter around zero across the range of fitted values, with no clear funneling or systematic changes in spread. This pattern is consistent with homoscedasticity, indicating constant variance of residuals.
+
+Models 2, 3, 4, 5, and 6 display evidence of heteroscedasticity. Model 2 shows pronounced banding with clear stratification, where residuals cluster into distinct horizontal bands rather than scattering uniformly. Models 3, 4, 5, and 6 exhibit strong diagonal banding patterns, where residuals form parallel lines across fitted values. These patterns arise from the discrete, proportion-based nature of the outcome variables in these models. Since respondents can only achieve certain discrete values (e.g., 0%, 25%, 50%, 75%, 100%), the residual variance is inherently non-constant—it is constrained near the boundaries and varies across the range of fitted values.
+
+```{r echo=FALSE}
+par(mfrow = c(4, 2), mar = c(2.5, 2.5, 2, 1), oma = c(0, 0, 0, 0))
+
+# Model 1
+model1 <- if ("lm_robust" %in% class(mod1)) lm(mod1$terms, data = df) else mod1
+qqnorm(residuals(model1), main = "Q-Q Plot: mod1", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
+       xlab = "", ylab = "", cex.main = 1.1)
+qqline(residuals(model1), col = "red")
+plot(fitted(model1), residuals(model1), xlab = "", ylab = "",
+     main = "Residuals vs Fitted: mod1", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
+     cex.main = 1.1)
+abline(h = 0, col = "red")
+
+# Model 2
+model2 <- if ("lm_robust" %in% class(mod2)) lm(mod2$terms, data = df) else mod2
+qqnorm(residuals(model2), main = "Q-Q Plot: mod2", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
+       xlab = "", ylab = "", cex.main = 1.1)
+qqline(residuals(model2), col = "red")
+plot(fitted(model2), residuals(model2), xlab = "", ylab = "",
+     main = "Residuals vs Fitted: mod2", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
+     cex.main = 1.1)
+abline(h = 0, col = "red")
+
+# Model 3
+model3 <- if ("lm_robust" %in% class(mod3)) lm(mod3$terms, data = df) else mod3
+qqnorm(residuals(model3), main = "Q-Q Plot: mod3", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
+       xlab = "", ylab = "", cex.main = 1.1)
+qqline(residuals(model3), col = "red")
+plot(fitted(model3), residuals(model3), xlab = "", ylab = "",
+     main = "Residuals vs Fitted: mod3", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
+     cex.main = 1.1)
+abline(h = 0, col = "red")
+
+# Model 4
+model4 <- if ("lm_robust" %in% class(mod4)) lm(mod4$terms, data = df) else mod4
+qqnorm(residuals(model4), main = "Q-Q Plot: mod4", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
+       xlab = "", ylab = "", cex.main = 1.1)
+qqline(residuals(model4), col = "red")
+plot(fitted(model4), residuals(model4), xlab = "", ylab = "",
+     main = "Residuals vs Fitted: mod4", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
+     cex.main = 1.1)
+abline(h = 0, col = "red")
+
+# Model 5
+model5 <- if ("lm_robust" %in% class(mod5)) lm(mod5$terms, data = df) else mod5
+qqnorm(residuals(model5), main = "Q-Q Plot: mod5", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
+       xlab = "", ylab = "", cex.main = 1.1)
+qqline(residuals(model5), col = "red")
+plot(fitted(model5), residuals(model5), xlab = "", ylab = "",
+     main = "Residuals vs Fitted: mod5", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
+     cex.main = 1.1)
+abline(h = 0, col = "red")
+
+# Model 6
+model6 <- if ("lm_robust" %in% class(mod6)) lm(mod6$terms, data = df) else mod6
+qqnorm(residuals(model6), main = "Q-Q Plot: mod6", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
+       xlab = "", ylab = "", cex.main = 1.1)
+qqline(residuals(model6), col = "red")
+plot(fitted(model6), residuals(model6), xlab = "", ylab = "",
+     main = "Residuals vs Fitted: mod6", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
+     cex.main = 1.1)
+abline(h = 0, col = "red")
+
+# Model 7
+model7 <- if ("lm_robust" %in% class(mod7)) lm(mod7$terms, data = df) else mod7
+qqnorm(residuals(model7), main = "Q-Q Plot: mod7", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
+       xlab = "", ylab = "", cex.main = 1.1)
+qqline(residuals(model7), col = "red")
+plot(fitted(model7), residuals(model7), xlab = "", ylab = "",
+     main = "Residuals vs Fitted: mod7", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
+     cex.main = 1.1)
+abline(h = 0, col = "red")
+
+par(mfrow = c(1, 1), mar = c(5, 4, 4, 2), oma = c(0, 0, 0, 0))
+```
+
+# 3.3 Additive Modelling
+
+## Top Co-Efficients of *Model 1* (`trustScore` ~ Demographics)
+
+```{r Modelling 1, echo=FALSE}
+
+options(scipen=0)
+
+kable(head(getSigCoefs(mod1), 7), digits=3) 
+
+```
+
+**Model 1** suggests that respondents with higher life satisfaction (`FD_G020A7`–`11`) tend to report greater digital trust, while older age groups (`AGE_GRP5`–`6`) show slightly lower trust levels in practice.
+
+
+## Top Co-Efficients of *Model 2* (`expoScore` ~ Demographics)
+
+```{r Modelling 2, echo=FALSE}
+
+kable(head(getSigCoefs(mod2), 5), digits=3) 
+
+
+```
+
+**Model 2** suggests that people with higher education levels (`EDU2`–`3`) tend to report greater exposure to cybersecurity incidents, while those with higher life satisfaction (`FD_G020A9`–`11`) report slightly lower exposure.
+
+## Top Co-Efficients of *Model 3* (`datSecScore` ~ Demographics)
+
+```{r Modelling 3, echo=FALSE}
+
+kable(head(getSigCoefs(mod3), 5), digits=3) 
+
+
+```
+
+The results in **Model 3** indicate that older adults (`AGE_GRP4`–`6`) engage in markedly fewer personal data-protection behaviours, while higher-educated respondents (`EDU2`–`3`) do more—showing a strong education gradient alongside a noticeable age-related decline.
+
+## Top Co-Efficients of *Model 4* (`idSecScore` ~ Demographics)
+
+```{r Modelling 4, echo=FALSE}
+
+kable(head(getSigCoefs(mod4), 5), digits=3) 
+```
+
+Findings in **Model 4** show that older age groups (`AGE_GRP4`–`6`) use fewer ID-security measures, whereas more educated individuals (`EDU2`–`3`) adopt significantly more, reinforcing a consistent pattern where education boosts digital security uptake as age reduces it.
+
+## Top Co-Efficients of *Model 5* (`pcSecScore` ~ Demographics)
+
+```{r Modelling 5, echo=FALSE}
+
+kable(head(getSigCoefs(mod5), 5), digits=3) 
+
+
+```
+
+**Model 5** highlights that PC/laptop protection measures are most common among higher-educated respondents (`EDU2`–`3`), with smaller increases among men (`GENDER1`) and those reporting higher life satisfaction (`FD_G020A8`–`9`), suggesting both social and attitudinal influences.
+
+## Top Co-Efficients of *Model 6* (`responseScore` ~ Demographics)
+
+```{r Modelling 6, echo=FALSE}
+
+kable(head(getSigCoefs(mod6), 5), digits=3) 
+
+
+```
+
+Here, disabled respondents (`DIS_101`), more educated individuals (`EDU2`–`EDU3`), and Indigenous respondents (`ABM1`) were more likely to take action after cyber incidents—an interesting pattern that points to greater response activity among groups who often face higher digital risk.
+
+## Top Co-Efficients of *Model 7* (`trustScore` ~ Demographics)
+
+```{r Modelling 7, echo=FALSE}
+
+kable(head(getSigCoefs(mod7), 5), digits=3) 
+
+
+```
+
+Finally, **Model 7** shows that trust is highest among those with stronger ID-security practices (`idSecScore`) and lowest among individuals with greater exposure to incidents (`expoScore`) or weaker data-protection habits (`datSecScore`).
+
+# 3.4 K-Fold Cross-Validation
+
+```{r cross validation summary table, echo = FALSE}
+
+# Create folds
+set.seed(123)
+folds <- vfold_cv(df, v = 10)
+
+# Cross-validation function
+cv_linear_model <- function(outcome, predictors) {
+
+  f <- reformulate(predictors, response = outcome)
+
+  mod <- linear_reg() %>%
+    set_engine("lm")
+
+  wf <- workflow() %>%
+    add_model(mod) %>%
+    add_formula(f)
+
+  fit_resamples(
+    wf,
+    resamples = folds,
+    metrics = metric_set(rmse, mae, rsq)
+  )
+}
+
+# Fit the 7 CV models
+varsScoresPred <- c("datSecScore", "idSecScore", "pcSecScore",
+                    "expoScore", "responseScore")
+
+cv_mod1 <- cv_linear_model("trustScore", varsDemo)
+cv_mod2 <- cv_linear_model("expoScore", varsDemo)
+cv_mod3 <- cv_linear_model("datSecScore", varsDemo)
+cv_mod4 <- cv_linear_model("idSecScore", varsDemo)
+cv_mod5 <- cv_linear_model("pcSecScore", varsDemo)
+cv_mod6 <- cv_linear_model("responseScore", varsDemo)
+cv_mod7 <- cv_linear_model("trustScore", varsScoresPred)
+
+
+# Helper to compute min/mean/max per metric for each model
+summarize_cv_stats <- function(cv_obj, model_name) {
+  cv_obj %>%
+    collect_metrics(summarize = FALSE) %>%   # keep per-fold values
+    select(.metric, .estimate) %>%
+    group_by(.metric) %>%
+    summarise(
+      min  = min(.estimate, na.rm = TRUE),
+      mean = mean(.estimate, na.rm = TRUE),
+      max  = max(.estimate, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    tidyr::pivot_wider(
+      names_from = .metric,
+      values_from = c(min, mean, max),
+      names_glue = "{.metric}_{.value}"
+    ) %>%
+    mutate(model = model_name) %>%
+    select(
+      model,
+      rmse_min,  rmse_mean,  rmse_max,
+      mae_min,   mae_mean,   mae_max,
+      rsq_min,   rsq_mean,   rsq_max
+    )
+}
+
+
+# Combine all 7 models into one table
+cv_summary <- bind_rows(
+  summarize_cv_stats(cv_mod1, "Model 1"),
+  summarize_cv_stats(cv_mod2, "Model 2"),
+  summarize_cv_stats(cv_mod3, "Model 3"),
+  summarize_cv_stats(cv_mod4, "Model 4"),
+  summarize_cv_stats(cv_mod5, "Model 5"),
+  summarize_cv_stats(cv_mod6, "Model 6"),
+  summarize_cv_stats(cv_mod7, "Model 7")
+)
+
+# Output as a kable table
+kable(cv_summary, digits = 4) 
+
+
+```
+To assess model performance and stability, we applied K-fold cross-validation to all seven models. This approach allowed us to estimate prediction error and variance explained across multiple splits of the data, ensuring that performance metrics were not dependent on a single train-test partition. We report RMSE (Root Mean Squared Error), MAE (Mean Absolute Error), and R-Squared (coefficient of determination) for each model.
+
+Across the seven models, there is notable variation in both predictive accuracy and variance explained. Models 2 and 7 achieve the lowest mean RMSE (0.151 and 0.163, respectively) and MAE (0.118 and 0.126), indicating that these models produce the most precise predictions. However, their mean R-Squared values are modest (0.067 for Model 2 and 0.045 for Model 7), suggesting that while predictions closely match observed values on average, the models capture only a small portion of the outcome variance.
+
+Model 4, in contrast, exhibits the highest mean R-Squared (0.191), indicating it explains more variance in the outcome than the other models. This higher explanatory power comes with slightly higher prediction error (mean RMSE = 0.253, mean MAE = 0.211), reflecting the common trade-off between minimizing prediction error and maximizing variance explained. Models 1, 5, and 6 show intermediate performance, balancing modest error with limited variance explained. Model 3 performs poorest in predictive accuracy (mean RMSE = 0.359, mean MAE = 0.310) despite slightly higher R² than some low-error models, suggesting that although it captures certain trends, its predictions are less precise overall.
+
+In addition, the range of metrics across folds further illustrates model stability. Most models show relatively narrow RMSE and MAE ranges, which indicates a consistent performance across different data splits. Model 6 displays slightly higher RMSE variability (0.186 - 0.203), suggesting its predictions are somewhat sensitive to the particular training/test split.
+
+Overall, these results indicate that Models 2 and 7 provide the best predictive accuracy, while Model 4 is strongest at explaining outcome variance. This highlights the trade-off between precision and explanatory power: the choice of model should align with the analytic goal, whether prioritizing accurate predictions or understanding the variance in outcomes.
+
+# 3.5 Train-Test Split
+
+```{r train test comparison, echo = FALSE}
+
+set.seed(123)
+split_obj <- initial_split(df, prop = 0.8)
+
+train_set <- training(split_obj)
+test_set  <- testing(split_obj)
+
+# Align factor levels
+test_set <- test_set %>%
+  mutate(across(where(is.factor),
+                ~ factor(.x, levels = levels(train_set[[cur_column()]]))))
+
+
+evaluate_model_tt <- function(outcome, predictors) {
+  
+  # Build formula
+  f <- reformulate(predictors, response = outcome)
+  
+  # Drop incomplete rows
+  train_data <- train_set %>% drop_na(all_of(c(outcome, predictors)))
+  test_data  <- test_set  %>% drop_na(all_of(c(predictors)))
+  
+  # Fit model
+  mod <- lm(f, data = train_data)
+  
+  # --- TRAIN METRICS ---
+  train_data <- train_data %>%
+    mutate(.pred = predict(mod, newdata = train_data))
+  
+  train_metrics <- yardstick::metric_set(rmse, mae, rsq)(
+    train_data, truth = !!sym(outcome), estimate = .pred
+  ) %>%
+    mutate(type = "train")
+  
+  # --- TEST METRICS ---
+  test_data <- test_data %>%
+    mutate(.pred = predict(mod, newdata = test_data))
+  
+  test_metrics <- yardstick::metric_set(rmse, mae, rsq)(
+    test_data, truth = !!sym(outcome), estimate = .pred
+  ) %>%
+    mutate(type = "test")
+  
+  # Combine
+  bind_rows(train_metrics, test_metrics)
+}
+
+evaluate_model_tt <- function(outcome, predictors) {
+  
+  # Build formula
+  f <- reformulate(predictors, response = outcome)
+  
+  # Drop incomplete rows
+  train_data <- train_set %>% drop_na(all_of(c(outcome, predictors)))
+  test_data  <- test_set  %>% drop_na(all_of(c(predictors)))
+  
+  # Fit model
+  mod <- lm(f, data = train_data)
+  
+  # --- TRAIN METRICS ---
+  train_data <- train_data %>%
+    mutate(.pred = predict(mod, newdata = train_data))
+  
+  train_metrics <- yardstick::metric_set(rmse, mae, rsq)(
+    train_data, truth = !!sym(outcome), estimate = .pred
+  ) %>%
+    mutate(type = "train")
+  
+  # --- TEST METRICS ---
+  test_data <- test_data %>%
+    mutate(.pred = predict(mod, newdata = test_data))
+  
+  test_metrics <- yardstick::metric_set(rmse, mae, rsq)(
+    test_data, truth = !!sym(outcome), estimate = .pred
+  ) %>%
+    mutate(type = "test")
+  
+  # Combine
+  bind_rows(train_metrics, test_metrics)
+}
+
+
+results_list <- list(
+  mod1 = evaluate_model_tt("trustScore", varsDemo),
+  mod2 = evaluate_model_tt("expoScore", varsDemo),
+  mod3 = evaluate_model_tt("datSecScore", varsDemo),
+  mod4 = evaluate_model_tt("idSecScore", varsDemo),
+  mod5 = evaluate_model_tt("pcSecScore", varsDemo),
+  mod6 = evaluate_model_tt("responseScore", varsDemo),
+  mod7 = evaluate_model_tt("trustScore", varsScoresPred)
+)
+
+summarize_tt_compare <- function(res, model_name) {
+  res %>%
+    select(type, .metric, .estimate) %>%
+    tidyr::pivot_wider(
+      names_from = c(type, .metric),
+      values_from = .estimate,
+      names_glue = "{.metric}_{type}"
+    ) %>%
+    mutate(model = model_name) %>%
+    select(model,
+           rmse_train, rmse_test,
+           mae_train,  mae_test,
+           rsq_train,  rsq_test)
+}
+
+tt_compare <- bind_rows(
+  summarize_tt_compare(results_list$mod1, "Model 1"),
+  summarize_tt_compare(results_list$mod2, "Model 2"),
+  summarize_tt_compare(results_list$mod3, "Model 3"),
+  summarize_tt_compare(results_list$mod4, "Model 4"),
+  summarize_tt_compare(results_list$mod5, "Model 5"),
+  summarize_tt_compare(results_list$mod6, "Model 6"),
+  summarize_tt_compare(results_list$mod7, "Model 7")
+)
+
+kable(tt_compare, digits = 4) 
+
+```
+
+We evaluated model performance on a held-out test set to assess how well the models generalize beyond the training data. Metrics reported include RMSE, MAE, and R-Squared for both training and test sets. These metrics provide complementary information: RMSE and MAE quantify prediction error, whereas R-Squared indicates how much variance in the outcome is explained by the model.
+
+Across all seven models, the train and test metrics are closely aligned, indicating little to no overfitting. For example, Model 1 has an RMSE of 0.1717 on the training set and 0.1704 on the test set, with MAE similarly close (0.1302 vs. 0.1297). The R-Squared values are also nearly identical (0.0342 train and 0.0396 test), indicating that the model captures a small but stable portion of the variance in the outcome.
+
+Model 2 and Model 7 again demonstrate strong predictive accuracy, with low RMSE and MAE across both training and test sets, and modest R-Squared (0.0683 - 0.0695 for Model 2, 0.0445–0.0481 for Model 7). Their consistency between training and test performance further confirms that these models are well-calibrated and not overfitting.
+
+Model 4, which previously showed the highest variance explained in cross-validation, maintains that property in the train/test evaluation (rsq_train = 0.1939, rsq_test = 0.1895), with errors only slightly higher than the lowest-error models. This reinforces that Model 4 balances error and explanatory power but may not be the most precise predictor.
+
+The remaining models (3, 5, and 6) display moderate differences in RMSE and MAE between training and test sets, but the discrepancies are small, generally on the order of 0.002 - 0.006. For example, Model 6 has an RMSE of 0.1911 on training data versus 0.1878 on the test set, and R² drops slightly from 0.0179 to 0.0132. These small differences indicate that the models are stable and predictions are not strongly dependent on the specific sample used for training.
+
+Overall, the Train-Test Split results confirm the patterns observed in cross-validation: Models 2 and 7 excel at minimizing prediction error, while Model 4 captures the most variance. The similarity between training and test metrics suggests that all models generalize well to unseen data, and there is no evidence of substantial overfitting.
+
+# IV Discussion & Key Takeaways
+
+### a. Education is the most consistent predictor of cybersecurity behaviour.
+People with higher education levels engage more in data, ID, and device protection, and take more action after incidents.
+
+### b. Trust and incident exposure align with attitudes and experience.
+Higher life satisfaction corresponds to greater trust and fewer incidents, while greater exposure to incidents corresponds to lower&nbsp;trust.
+
+### c. Older adults consistently report lower levels of protective behaviour.
+Age groups in the upper ranges show reduced engagement across several security domains.
+
+### d. Trust is shaped more by security habits & experience than by demographics.
+Stronger ID-security habits relate to higher trust, while weaker protection and more exposure relate to lower trust.
+
+### e. Some equity-seeking groups show higher post-incident response activity.
+Disabled & Indigenous respondents often take more post-incident actions, contrasting with dominant ideas that these groups lack digital&nbsp;skills.
+
+### f. Analysis is limited by coarse data and shifting survey design.
+Broad demographic categories and proportion scores may reduce nuance, and year-to-year changes in the survey, partly driven by sponsorship priorities, prevent meaningful trend comparisons.
+
+# V Appendix
+
+# Demographic Variables
+
+```{r Table: Demographic Variables, echo = FALSE}
+demoVarsDict <- tribble(
+  ~Code,      ~Description,             ~Type,
+  "LUC_RST",  "Location density",      "Nominal",
+  "AGE_GRP",  "Age group",              "Ordinal",
+  "HINCQUIN", "Family income quintile", "Ordinal",
+  "EDU",      "Highest education",      "Ordinal",
+  "FD_G020A", "Life satisfaction",      "Ordinal",
+  "GENDER",   "Gender",                 "Binary",
+  "EMP",      "Employment status",      "Binary",
+  "IMM_STA",  "Immigrant status",       "Binary",
+  "VISMIN",   "Visible minority",       "Binary",
+  "DIS_10",   "Disability status",      "Binary",
+  "ABM",      "Indigenous identity",    "Binary"
+
+
+
+)
+
+kable(demoVarsDict, col.names = c("Code", "Variable", "Type"))
+```
+
+# Cybersecurity & Trust Categories
+
+## High-Level Overview
+
+```{r Table: Cyber Categories, echo = FALSE}
+spVars <- tribble(
+  ~Code,    ~Description,
+  "SP_010", "Personal Data Protection",
+  "SP_020", "ID Verification Measures",
+  "SP_030", "Trust in Technologies",
+  "SP_040", "Trust in Organizations",
+  "SP_050", "Cybersecurity Incidents",
+  "SP_060", "Financial Loss",
+  "SP_070", "Post-Incident Actions",
+  "SP_080", "PC/Laptop Protection"
+)
+
+kable(spVars, col.names = c("Code", "Variable"))
+```
+
+## `SP_010` - Personal Data Protection
+
+```{r SP010, echo = FALSE}
+
+sp010Vars <- tribble(
+  ~Code,      ~Description,
+  "SP_010A",  "Limited access to location",
+  "SP_010B",  "Refused data use for ads",
+  "SP_010C",  "Checked website security",
+  "SP_010D",  "Changed privacy settings",
+  "SP_010Y",  "Don't know",
+  "SP_010Z",  "None of these activities"
+)
+
+kable(sp010Vars, col.names = c("Code", "Variable"))
+```
+
+## `SP_020` - ID Verification Measures
+
+```{r Table: SP_020 Variables, echo = FALSE}
+
+sp020Vars <- tribble(
+  ~Code,      ~Description,
+  "SP_020A",  "Security questions",
+  "SP_020B",  "Partner login",
+  "SP_020C",  "Two-factor / two-step verification",
+  "SP_020D",  "Biometric authentication",
+  "SP_020E",  "Password manager",
+  "SP_020F",  "Other optional security features",
+  "SP_020Y",  "Don't know",
+  "SP_020Z",  "Enabled none of these"
+)
+
+kable(sp020Vars, col.names = c("Code", "Variable"))
+
+```
+
+## `SP_030` - Trust in Technologies
+
+```{r Table: SP_030 Variables, echo = FALSE}
+
+sp030Vars <- tribble(
+  ~Code,     ~Description,
+  "SP_030A", "Digital credentials",
+  "SP_030B", "AI technologies",
+  "SP_030C", "Social media",
+  "SP_030D", "Smart speakers",
+  "SP_030E", "Other smart home devices",
+  "SP_030F", "Wearable smart devices",
+  "SP_030G", "Online data storage"
+)
+
+kable(sp030Vars, col.names = c("Code", "Variable"))
+
+```
+
+## `SP_040` - Trust in Organizations
+
+```{r echo = FALSE}
+
+sp040Vars <- tribble(
+  ~Code,     ~Description,
+  "SP_040A", "Government organizations",
+  "SP_040B", "Banking / financial institutions",
+  "SP_040C", "Other businesses / organizations"
+)
+
+kable(sp040Vars, col.names = c("Code", "Variable"))
+
+```
+
+## `SP_050` - Encountered Incidents I
+
+```{r echo = FALSE}
+
+sp050VarsI <- tribble(
+  ~Code,     ~Description,
+  "SP_050A", "Malicious software installed",
+  "SP_050B", "Fraudulent use of identity",
+  "SP_050C", "Received fraudulent content",
+  "SP_050D", "Received unsolicited spam",
+  "SP_050E", "Hacked accounts / fraudulent messages",
+  "SP_050F", "Redirected to fraudulent websites",
+)
+
+kable(sp050VarsI, col.names = c("Code", "Variable"))
+
+```
+
+## `SP_050` - Encountered Incidents II
+
+```{r echo = FALSE}
+sp050VarsII <- tribble(
+  ~Code,     ~Description,
+  "SP_050G", "Fraudulent payment card use",
+  "SP_050H", "Loyalty program points fraud",
+  "SP_050I", "Asked to pay a cyber-ransom",
+  "SP_050J", "Other cybersecurity incidents",
+  "SP_050Z", "No cybersecurity incident"
+)
+
+kable(sp050VarsII, col.names = c("Code", "Variable"))
+```
+
+## `SP_060A` - Financial Loss
+
+## `SP_070` - Post-Incident Actions
+
+```{r echo = FALSE}
+
+sp070Vars <- tribble(
+  ~Code,     ~Description,
+  "SP_070A", "Reported to company involved",
+  "SP_070B", "Reported to government authority",
+  "SP_070C", "Installed or upgraded protection software",
+  "SP_070D", "Read terms and conditions more carefully",
+  "SP_070E", "Changed passwords more frequently",
+  "SP_070F", "Deleted affected accounts",
+  "SP_070G", "Changed payment card number",
+  "SP_070H", "Other actions",
+  "SP_070Z", "No actions taken"
+)
+
+kable(sp070Vars, col.names = c("Code", "Variable"))
+
+```
+
+## `SP_080` - PC/Laptop Protection
+
+```{r echo = FALSE}
+sp080Vars <- tribble(
+  ~Code,     ~Description,
+  "SP_080A", "Enable automatic OS updates",
+  "SP_080B", "Manually update OS regularly",
+  "SP_080C", "Use additional security software",
+  "SP_080D", "Other laptop/computer protection",
+  "SP_080Z", "No protection measures taken"
+)
+
+kable(sp080Vars, col.names = c("Code", "Variable"))
+```
