@@ -726,22 +726,56 @@ df <- df %>%
 
 ```
 
-# I Overview
+# I. Overview
 
 # 1.1 Background
+<<<<<<< Updated upstream
   The COVID-19 pandemic triggered an abrupt and unprecedented shift toward digital life in Canada. Between 2020 and 2022, daily activities such as work, financial transactions, education, and social engagement moved online at a scale and speed not previously seen. As public health restrictions eased and in-person routines resumed, Canadians were left navigating a hybrid environment, where digital systems remained deeply embedded in everyday life. This rapid digitization not only transformed online habits, but also reshaped how people perceived cybersecurity, digital risks, and the institutions that manage and protect their data.
 
   Examining cybersecurity attitudes and experiences in the immediate post-pandemic period is critical. Early evidence suggests that the pandemic widened digital inequalities, exposed new vulnerabilities, and increased public reliance on complex digital infrastructures. Yet less is known about how different demographic groups adapted after the “digital storm”: who continued to experience cyber incidents, who engaged in protective behaviors, and how trust in technologies and organizations evolved once emergency digital dependence subsided.
 
   This study investigates patterns of cybersecurity behavior, incident exposure, and digital trust in Canada in 2022 using the Canadian Internet Use Survey (CIUS), a nationally representative dataset. We focus on identifying which groups were more likely to encounter cyber incidents, how demographic factors shape protective behaviors, and how cybersecurity experiences relate to digital trust in the post-COVID context.
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+The COVID-19 pandemic triggered an abrupt and unprecedented shift toward digital life in Canada. Daily activities such as work, financial transactions, education, and social engagement moved online at a scale and speed not previously seen (Amankwah-Amoah et al., 2021). As public health restrictions eased and in-person routines resumed, people across the globe were left navigating a hybrid environment, where digital systems remained deeply embedded in everyday life. This rapid digitization not only transformed online habits, but also reshaped how people perceived cybersecurity, digital risks, and the institutions that manage and protect their data (Nawaz et al., 2024).
+
+Examining cybersecurity attitudes and experiences in the immediate post-pandemic period is critical. Early evidence suggests that the pandemic widened digital inequalities, exposed new vulnerabilities, and increased public reliance on complex digital infrastructures (Ramsetty & Adams, 2020). In this context, we are interested in how demographic and behavioural groups in Canada adapted after this digital storm: who continued to experience cyber incidents, who engaged in protective behaviors, and how trust in technologies and organizations evolved once emergency digital dependence subsided.
+
+This study investigates patterns of cybersecurity behavior, incident exposure, and digital trust in Canada in 2022 using the Canadian Internet Use Survey (CIUS), a nationally representative dataset. We focus on identifying which groups were more likely to encounter cyber incidents, how demographic factors shape protective behaviors, and how cybersecurity experiences relate to digital trust in the post-COVID context.
+=======
+  The COVID-19 pandemic triggered an abrupt and unprecedented shift toward digital life in Canada. Between 2020 and 2022, daily activities such as work, financial transactions, education, and social engagement moved online at a scale and speed not previously seen. As public health restrictions eased and in-person routines resumed, Canadians were left navigating a hybrid environment, where digital systems remained deeply embedded in everyday life. This rapid digitization not only transformed online habits, but also reshaped how people perceived cybersecurity, digital risks, and the institutions that manage and protect their data.
+
+  Examining cybersecurity attitudes and experiences in the immediate post-pandemic period is critical. Early evidence suggests that the pandemic widened digital inequalities, exposed new vulnerabilities, and increased public reliance on complex digital infrastructures. Yet less is known about how different demographic groups adapted after the “digital storm”: who continued to experience cyber incidents, who engaged in protective behaviors, and how trust in technologies and organizations evolved once emergency digital dependence subsided.
+
+  This study investigates patterns of cybersecurity behavior, incident exposure, and digital trust in Canada in 2022 using the Canadian Internet Use Survey (CIUS), a nationally representative dataset. We focus on identifying which groups were more likely to encounter cyber incidents, how demographic factors shape protective behaviors, and how cybersecurity experiences relate to digital trust in the post-COVID context.
+>>>>>>> 71020ae517b0787df1442786067a6f775d307d52
+=======
+  The COVID-19 pandemic triggered an abrupt and unprecedented shift toward digital life in Canada. Between 2020 and 2022, daily activities such as work, financial transactions, education, and social engagement moved online at a scale and speed not previously seen. As public health restrictions eased and in-person routines resumed, Canadians were left navigating a hybrid environment, where digital systems remained deeply embedded in everyday life. This rapid digitization not only transformed online habits, but also reshaped how people perceived cybersecurity, digital risks, and the institutions that manage and protect their data.
+
+  Examining cybersecurity attitudes and experiences in the immediate post-pandemic period is critical. Early evidence suggests that the pandemic widened digital inequalities, exposed new vulnerabilities, and increased public reliance on complex digital infrastructures. Yet less is known about how different demographic groups adapted after the “digital storm”: who continued to experience cyber incidents, who engaged in protective behaviors, and how trust in technologies and organizations evolved once emergency digital dependence subsided.
+
+  This study investigates patterns of cybersecurity behavior, incident exposure, and digital trust in Canada in 2022 using the Canadian Internet Use Survey (CIUS), a nationally representative dataset. We focus on identifying which groups were more likely to encounter cyber incidents, how demographic factors shape protective behaviors, and how cybersecurity experiences relate to digital trust in the post-COVID context.
+>>>>>>> 71020ae517b0787df1442786067a6f775d307d52
+>>>>>>> Stashed changes
 
 # 1.2 Research Question
 Two central questions guide the analysis:
 
-Who in Canada was more likely to experience or notice cyber incidents in the post‑COVID period, in 2022?
-How do Canadians feel about cybersecurity and digital trust after the pandemic, and how are they responding to the  risks and habits shaped by that period?
+* Who in Canada was more likely to experience or notice cyber incidents in the post‑COVID period, in 2022?
+
+<<<<<<< Updated upstream
+  These questions address both the distribution of digital harm and the behavioral and attitudinal dynamics that shape individuals’ security practices and trust online.
+=======
+* How do Canadians feel about cybersecurity and digital trust after the pandemic, and how are they responding to the   risks and habits shaped by that period?
 
   These questions address both the distribution of digital harm and the behavioral and attitudinal dynamics that shape individuals’ security practices and trust online.
+
+<<<<<<< HEAD
+=======
+  These questions address both the distribution of digital harm and the behavioral and attitudinal dynamics that shape individuals’ security practices and trust online.
+>>>>>>> 71020ae517b0787df1442786067a6f775d307d52
+>>>>>>> Stashed changes
 
 # 1.3 Implications & Method
 
@@ -749,9 +783,21 @@ How do Canadians feel about cybersecurity and digital trust after the pandemic, 
   Identifying which groups are most vulnerable to cybersecurity risks (and how they respond to them) has meaningful implications for public policy and digital inclusion efforts. Insights from this study can inform targeted educational programs, resource allocation, and support strategies designed to reduce unequal exposure to cyber harm. Therefore, understanding patterns of protection, incident experience and trust can guide initiatives aimed at strengthening digital resilience and building a more equitable and trustworthy digital environment in Canada.
 
 ## Methodology
+<<<<<<< Updated upstream
   To investigate these questions, we analyze micro data from the 2022 Canadian Internet Use Survey (CIUS), a national Statistics Canada survey that captures Canadians’ digital behaviors, cybersecurity practices, incident experiences, and trust in technologies and institutions. The dataset includes 25,118 respondents and 1,342 variables, linking demographic characteristics to detailed cybersecurity and trust-related measures. From this high-dimensional dataset, we extract relevant variables and construct proportion-based cybersecurity and trust scores to summarize multi-item behaviors without losing conceptual nuance. These derived measures form the basis for exploratory analysis and predictive modelling.
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+To investigate these questions, we analyze micro data from the 2022 Canadian Internet Use Survey (CIUS), a national Statistics Canada survey that captures Canadians’ digital behaviors, cybersecurity practices, incident experiences, and trust in technologies and institutions (Statistics Canada, 2024). The dataset includes 25,118 respondents and 1,342 variables, linking demographic characteristics to detailed cybersecurity and trust-related measures. From this high-dimensional dataset, we extract relevant variables and construct proportion-based cybersecurity and trust scores to summarize multi-item behaviors without losing conceptual nuance. These derived measures form the basis for exploratory analysis and predictive modelling.
+=======
+  To investigate these questions, we analyze micro data from the 2022 Canadian Internet Use Survey (CIUS), a national Statistics Canada survey that captures Canadians’ digital behaviors, cybersecurity practices, incident experiences, and trust in technologies and institutions. The dataset includes 25,118 respondents and 1,342 variables, linking demographic characteristics to detailed cybersecurity and trust-related measures. From this high-dimensional dataset, we extract relevant variables and construct proportion-based cybersecurity and trust scores to summarize multi-item behaviors without losing conceptual nuance. These derived measures form the basis for exploratory analysis and predictive modelling.
+>>>>>>> 71020ae517b0787df1442786067a6f775d307d52
+=======
+  To investigate these questions, we analyze micro data from the 2022 Canadian Internet Use Survey (CIUS), a national Statistics Canada survey that captures Canadians’ digital behaviors, cybersecurity practices, incident experiences, and trust in technologies and institutions. The dataset includes 25,118 respondents and 1,342 variables, linking demographic characteristics to detailed cybersecurity and trust-related measures. From this high-dimensional dataset, we extract relevant variables and construct proportion-based cybersecurity and trust scores to summarize multi-item behaviors without losing conceptual nuance. These derived measures form the basis for exploratory analysis and predictive modelling.
+>>>>>>> 71020ae517b0787df1442786067a6f775d307d52
+>>>>>>> Stashed changes
 
-# II Exploratory Data Analysis
+# II. Exploratory Data Analysis
 
 # 2.1 The Original Dataset
   The 2022 Canadian Internet Use Survey (CIUS) contains a wide array of variables describing respondents’ digital behaviors, cybersecurity practices, and socio-demographic characteristics. Before analysis, we conducted an initial audit of missing values and response patterns. Across the full dataset, 14.72% of responses fell into non-informative categories such as Valid Skip, Don’t Know, Refusal, or Not Stated. These patterns are typical of large-scale surveys involving complex behavioral items, but they underscore the need for careful pre-processing.
@@ -780,8 +826,11 @@ The CIUS features two broad types of variables relevant to this study:
 |                                 |                        | Disability status         |
 |                                 |                        | Indigenous identity       |
 
-# 2.3 Pain Point
+# 2.3 Deriving New Variables
 
+<<<<<<< HEAD
+The CIUS includes many “select all that apply” questions, where each response option is coded as a separate binary column (e.g., SP_010A, SP_010B, SP_010C). For instance, the Personal Data Protection category (SP_010) includes actions such as limiting access to location, refusing data use for ads, checking website security, and changing privacy settings. This high-granularity structure captures detailed behavioral data and preserves the nuance of respondents’ digital practices, allowing fine-grained analysis and flexibility for constructing derived indicators. However, it also creates sparse, high-dimensional datasets that are difficult to visualize and model, increase the risk of overfitting, and can obscure broader behavioral patterns, motivating the development of more interpretable summary measures. We derived new variables to reduce hyper-granularity and find candidates for predictive modelling. 
+=======
 ## Too-Granular Variables
   A major feature of the CIUS is its extensive use of “select all that apply” questions. Each individual response option becomes a separate binary column (e.g., SP_010A, SP_010B, SP_010C), leading to extremely high dimensional  and sparse variables. For example, the Personal Data Protection category (SP_010) consists of items such as:
 
@@ -810,6 +859,7 @@ This structure provides detailed behavioral data but complicates statistical mod
 # 2.4 Deriving New Variables
 
 We derived new variables to reduce hyper-granularity and find candidates for predictive modelling. 
+>>>>>>> 71020ae517b0787df1442786067a6f775d307d52
 
 ### a. Binarized Variables
   For some item groups, we constructed binary indicators coded as 1 if the respondent selected any protective action (excluding “None”) and 0 otherwise. This reduction simplifies modelling of general behavior categories while preserving their patterns.
@@ -851,7 +901,7 @@ df <- makeTrustScore(df, varsTrust, "trustScore")
 
 ```
 
-# 2.5 Categorical Variables (Demographics)
+# 2.4 Categorical Variables (Demographics)
 
 ## Chi-Square Tests
 
@@ -872,10 +922,14 @@ kable(catChiSum(df, varsDemo), digits=4, align = "r")
 
 # Calling Proportion Bar Plots ----
 
-pbp1 <- propBarPlot(df, LUC_RST, labsLoc, "Location Density")
-pbp2 <- propBarPlot(df, AGE_GRP, labsAge, "Age Group")
-pbp3 <- propBarPlot(df, HINCQUIN, labsHINC, "Household Income Quintile")
-pbp4 <- propBarPlot(df, EDU, labsEdu, "Highest Education Level")
+pbp1 <- propBarPlot(df, LUC_RST, labsLoc, "Location Density") +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+pbp2 <- propBarPlot(df, AGE_GRP, labsAge, "Age Group") +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+pbp3 <- propBarPlot(df, HINCQUIN, labsHINC, "Household Income Quintile") +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+pbp4 <- propBarPlot(df, EDU, labsEdu, "Highest Education Level") +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Patchwork ----
 
@@ -919,8 +973,23 @@ pbp9 <- propBarPlot(df, FD_G020A, labsSat, "Life Satisfaction")
 
   These visual patterns also point to broader limitations in survey reach. Like many national online-behaviour surveys, the CIUS may not fully capture groups who face structural barriers to digital access, such as individuals with very low income, unstable housing, limited literacy or inconsistent internet access. This limitation is essential when interpreting outcome differences: some findings may reflect who participated in the survey as much as underlying differences in cybersecurity behavior.
 
+<<<<<<< Updated upstream
 # 2.6 The Derived Scores
   We constructed six continuous, proportion-based scores from grouped CIUS items to summarize multi-item behavior and attitude domains. Each score is scaled between 0 and 1 (with the exception being trustScore, with a range of -1 to 1), where higher values indicate more protective behaviors, greater exposure, stronger response activity, or higher trust:
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+# 2.5 The Derived Scores
+We constructed six continuous, proportion-based scores from grouped CIUS items to summarize multi-item behavior and attitude domains. Each score is scaled between 0 and 1 (with the exception being trustScore, with a range of -1 to 1), where higher values indicate more protective behaviors, greater exposure, stronger response activity, or higher trust:
+=======
+# 2.6 The Derived Scores
+  We constructed six continuous, proportion-based scores from grouped CIUS items to summarize multi-item behavior and attitude domains. Each score is scaled between 0 and 1 (with the exception being trustScore, with a range of -1 to 1), where higher values indicate more protective behaviors, greater exposure, stronger response activity, or higher trust:
+>>>>>>> 71020ae517b0787df1442786067a6f775d307d52
+=======
+# 2.6 The Derived Scores
+  We constructed six continuous, proportion-based scores from grouped CIUS items to summarize multi-item behavior and attitude domains. Each score is scaled between 0 and 1 (with the exception being trustScore, with a range of -1 to 1), where higher values indicate more protective behaviors, greater exposure, stronger response activity, or higher trust:
+>>>>>>> 71020ae517b0787df1442786067a6f775d307d52
+>>>>>>> Stashed changes
 
 ```{r table - derived scores, echo=FALSE}
 
@@ -957,7 +1026,7 @@ kable(derived_scores, align = "l")
 
   These derived scores preserve the multi-dimensionality of the original items while reducing sparsity and enabling parametric modelling.
 
-# 2.7 Numerical Variables (Scores)
+# 2.6 Numerical Variables (Scores)
 ## Central Tendency of Scores
 
 ```{r Table: Numeric Summary Table (Central Tendency), echo=FALSE}
@@ -1005,7 +1074,7 @@ hist6 <- ggplot(df, aes(x=trustScore)) +
 ```
 *Density plots of derived cybersecurity and trust scores (datSecScore, idSecScore, pcSecScore, expoScore, responseScore, trustScore). Note: density calculations exclude non-finite values; responseScore visualizations restricted to respondents reporting at least one incident.*
 
-# III Predictive Modelling
+# III. Predictive Modelling
 
 ```{r Creating the Models, echo=FALSE}
 
@@ -1076,14 +1145,9 @@ mod7 <- lm(trustScore ~ expoScore + datSecScore + idSecScore + pcSecScore + resp
 
   We estimated seven regression models, each examining how demographic characteristics shape cybersecurity behaviours, incident exposure, digital trust, and post-incident actions. Models 1–6 focus on demographic effects, while Model 7 evaluates how the constructed cybersecurity scores collectively predict trust.
 
-*Model 1*. `trustScore` ~ Demographics
-*Model 2*. `expoScore` ~ Demographics 
-*Model 3*. `datSecScore` ~ Demographics
-*Model 4*. `idSecScore` ~ Demographics
-*Model 5*. `pcSecScore` ~ Demographics
-*Model 6*. `responseScore` ~ Demographics 
-*Model 7*. `trustScore`~ All Other Scores
+Each model uses categorical demographic factors (age, gender, income, education, immigrant status, visible minority status, disability status, Indigenous identity, employment status, location type, life satisfaction) to estimate how different social groups vary in cybersecurity behavior, vulnerability, and trust:
 
+<<<<<<< Updated upstream
   Each model uses categorical demographic factors (age, gender, income, education, immigrant status, visible minority status, disability status, Indigenous identity, employment status, location type, life satisfaction) to estimate how different social groups vary in cybersecurity behavior, vulnerability, and trust.
 
   Starting with Model 1 (trustScore ~ Demographics), we found that digital trust increases across the higher life-satisfaction groups, while respondents in the older age groups show slightly lower trust overall.
@@ -1099,6 +1163,57 @@ mod7 <- lm(trustScore ~ expoScore + datSecScore + idSecScore + pcSecScore + resp
   Model 6 (responseScore ~ Demographics) showed that disabled respondents, Indigenous respondents, employed people, and higher education groups were more likely to take action after experiencing a cyber incident.
 
   Finally, Model 7 (trustScore ~ All other scores) showed that for every unit increase in ID-security practices trust increased, while greater exposure to incidents and stronger data-protection behaviors both predicted lower trust. 
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+* Starting with Model 1 (trustScore predicted from demographics variables), we found that digital trust increases     across the higher life-satisfaction groups, while respondents in the older age groups show slightly lower trust     overall.
+
+* In Model 2 (expoScore predicted from demographics variables), we found that exposure to cybersecurity incidents     increased across the higher education groups, while respondents in the higher life-satisfaction groups reported     fewer incidents.
+
+* Model 3 (datSecScore predicted from demographics variables) showed that personal data-protection behaviors          decreased across the older age groups and increased across the higher education groups.
+
+* Model 4 (idSecScore predicted from demographics variables) showed a similar pattern for ID-security                 practices—older age groups adopted fewer measures, and higher education groups adopted more.
+
+* Model 5 (pcSecScore predicted from demographics variables), we found that PC and laptop protection was strongest    among the higher education groups, with smaller increases among men and among respondents in the higher             life-satisfaction groups.
+
+* Model 6 (responseScore predicted from demographics variables) showed that disabled respondents, Indigenous          respondents, employed people, and higher education groups were more likely to take action after experiencing a      cyberincident.
+
+* Model 7 (trustScore predicted from all other scores) showed that for every unit increase in ID-security practices   trust increased, while greater exposure to incidents and stronger data-protection behaviors both predicted lower    trust. Apologies for the typo on the screen—model seven is not trust regressed on demographics but rather trust     regressed on the other scores.
+=======
+  Each model uses categorical demographic factors (age, gender, income, education, immigrant status, visible minority status, disability status, Indigenous identity, employment status, location type, life satisfaction) to estimate how different social groups vary in cybersecurity behavior, vulnerability, and trust.
+
+  Starting with Model 1 (trustScore ~ Demographics), we found that digital trust increases across the higher life-satisfaction groups, while respondents in the older age groups show slightly lower trust overall.
+
+  In Model 2 (expoScore ~ Demographics), we found that exposure to cybersecurity incidents increased across the higher education groups, while respondents in the higher life-satisfaction groups reported fewer incidents.
+
+  Model 3 (datSecScore ~ Demographics) showed that personal data-protection behaviors decreased across the older age groups and increased across the higher education groups.
+
+  Model 4 (idSecScore ~ Demographics) showed a similar pattern for ID-security practices—older age groups adopted fewer measures, and higher education groups adopted more.
+
+  In Model 5 (pcSecScore ~ Demographics), we found that PC and laptop protection was strongest among the higher education groups, with smaller increases among men and among respondents in the higher life-satisfaction groups.
+
+  Model 6 (responseScore ~ Demographics) showed that disabled respondents, Indigenous respondents, employed people, and higher education groups were more likely to take action after experiencing a cyber incident.
+
+  Finally, Model 7 (trustScore ~ All other scores) showed that for every unit increase in ID-security practices trust increased, while greater exposure to incidents and stronger data-protection behaviors both predicted lower trust. 
+>>>>>>> 71020ae517b0787df1442786067a6f775d307d52
+=======
+  Each model uses categorical demographic factors (age, gender, income, education, immigrant status, visible minority status, disability status, Indigenous identity, employment status, location type, life satisfaction) to estimate how different social groups vary in cybersecurity behavior, vulnerability, and trust.
+
+  Starting with Model 1 (trustScore ~ Demographics), we found that digital trust increases across the higher life-satisfaction groups, while respondents in the older age groups show slightly lower trust overall.
+
+  In Model 2 (expoScore ~ Demographics), we found that exposure to cybersecurity incidents increased across the higher education groups, while respondents in the higher life-satisfaction groups reported fewer incidents.
+
+  Model 3 (datSecScore ~ Demographics) showed that personal data-protection behaviors decreased across the older age groups and increased across the higher education groups.
+
+  Model 4 (idSecScore ~ Demographics) showed a similar pattern for ID-security practices—older age groups adopted fewer measures, and higher education groups adopted more.
+
+  In Model 5 (pcSecScore ~ Demographics), we found that PC and laptop protection was strongest among the higher education groups, with smaller increases among men and among respondents in the higher life-satisfaction groups.
+
+  Model 6 (responseScore ~ Demographics) showed that disabled respondents, Indigenous respondents, employed people, and higher education groups were more likely to take action after experiencing a cyber incident.
+
+  Finally, Model 7 (trustScore ~ All other scores) showed that for every unit increase in ID-security practices trust increased, while greater exposure to incidents and stronger data-protection behaviors both predicted lower trust. 
+>>>>>>> 71020ae517b0787df1442786067a6f775d307d52
+>>>>>>> Stashed changes
 
 # 3.2 Testing Assumptions
 
@@ -1520,6 +1635,13 @@ kable(cv_summary, digits = 4)
 # 3.5 Train-Test Split
 
 ```{r train test comparison, echo = FALSE}
+varsScoresPred <- c(
+"datSecScore",
+"idSecScore",
+"pcSecScore",
+"expoScore",
+"responseScore"
+)
 
 set.seed(123)
 split_obj <- initial_split(df, prop = 0.8)
@@ -1681,8 +1803,6 @@ cv_linear_model <- function(outcome, predictors) {
 }
 
 # Fit the 7 CV models
-varsScoresPred <- c("datSecScore", "idSecScore", "pcSecScore",
-                    "expoScore", "responseScore")
 
 cv_mod1 <- cv_linear_model("trustScore", varsDemo)
 cv_mod2 <- cv_linear_model("expoScore", varsDemo)
@@ -1746,7 +1866,7 @@ In addition, the range of metrics across folds further illustrates model stabili
 
 Overall, because the RMSE and MAE values were very similar across folds for almost all models (with only small ranges), the cross-validation was successful. This consistency means that the models are stable: their performance doesn’t depend heavily on how the data is split. In practical terms, the models appear to generalize reasonably well, and there’s no strong evidence of overfitting. The only exception is Model 6, which showed slightly wider variability, suggesting its performance is a bit more sensitive to the data split.
 
-# IV Discussion & Key Takeaways
+# IV. Discussion & Key Takeaways
 
 ### a. Education is the most consistent predictor of cybersecurity behaviour.
 People with higher education levels engage more in data, ID, and device protection, and take more action after incidents.
@@ -1766,7 +1886,7 @@ Disabled & Indigenous respondents often take more post-incident actions, contras
 ### f. Analysis is limited by coarse data and shifting survey design.
 Broad demographic categories and proportion scores may reduce nuance, and year-to-year changes in the survey, partly driven by sponsorship priorities, prevent meaningful trend comparisons.
 
-# V Appendix
+# V. Appendix
 
 # Demographic Variables
 
@@ -1953,3 +2073,63 @@ sp080Vars <- tribble(
 
 kable(sp080Vars, col.names = c("Code", "Variable"))
 ```
+
+# VI. References
+
+Amankwah-Amoah, J., Khan, Z., Wood, G., & Knight, G. (2021). COVID-19 and digitalization: The great acceleration. Journal of Business Research, 136, 602–611. https://doi.org/10.1016/j.jbusres.2021.08.011
+
+Arias López, M. del P., Ong, B. A., Borrat Frigola, X., Fernández, A. L., Hicklent, R. S., Obeles, A. J. T., Rocimo, A. M., & Celi, L. A. (2023). Digital literacy as a new determinant of health: A scoping review. PLOS Digital Health, 2(10), e0000279. https://doi.org/10.1371/journal.pdig.0000279
+
+Fitzpatrick, P. J. (2023). Improving health literacy using the power of digital communications to achieve better health outcomes for patients and practitioners. Frontiers in Digital Health, 5, 1264780. https://doi.org/10.3389/fdgth.2023.1264780
+
+Florence Jaumotte, Myrto Oikonomou, Carlo Pizzinelli, & Marina M. Tavares. (2023, March 21). How Pandemic Accelerated Digital Transformation in Advanced Economies [NGO Website]. International Monetary Fund. https://www.imf.org/en/Blogs/Articles/2023/03/21/how-pandemic-accelerated-digital-transformation-in-advanced-economies
+
+Government of Canada, S. C. (2021, January 21). Canadian Perspectives Survey Series 5: Technology Use and Cyber Security During the Pandemic Public Use Microdata File. https://www150.statcan.gc.ca/n1/pub/45-25-0010/452500102021001-eng.htm
+
+Government of Canada, S. C. (2024, September 17). The Daily—Survey of Digital Technology and Internet Use, 2023. https://www150.statcan.gc.ca/n1/daily-quotidien/240917/dq240917c-eng.htm
+
+Hachouch, Y., Akef, H., McDiarmid, C., Vachon, M., Morris, S., & Simionescu, D. (2025). Barriers to accessibility related to Internet use: Findings from the 2022 Canadian Survey on Disability. https://www150.statcan.gc.ca/n1/pub/89-654-x/89-654-x2025004-eng.htm
+
+History of the Internet. (n.d.). Internet Society. Retrieved September 22, 2025, from https://www.internetsociety.org/internet/history-internet/
+
+Jafar, Z., Quick, J. D., Rimányi, E., & Musuka, G. (2024). Social Media and Digital Inequity: Reducing Health Inequities by Closing the Digital Divide. International Journal of Environmental Research and Public Health, 21(11), 1420. https://doi.org/10.3390/ijerph21111420
+
+Jonathan Timmis & Alexandros Ragoussis. (2022, April 8). This is how COVID-19 has accelerated the adoption of website technology [NGO Website]. World Economic Forum. https://www.weforum.org/stories/2022/04/website-technologies-pandemic/
+
+Koch, K. (2022). The Territorial and Socio-Economic Characteristics of the Digital Divide in Canada. Canadian Journal of Regional Science / Revue Canadienne Des Sciences Régionales, 45(2), 89–98. https://doi.org/10.7202/1092248ar
+
+Li, V., & Dobbs, G. (2025). Right Brain, Left Brain, AI Brain: Implications of AI on Jobs and Skills Demand in Canada. Future Skills Centre. https://fsc-ccf.ca/wp-content/uploads/2025/02/right-brain-left-brain-ai-brain-implications-of-ai-on-jobs-and-skills-demand-in-canada.pdf
+
+Lythreatis, S., Singh, S. K., & El-Kassar, A.-N. (2022). The digital divide: A review and future research agenda. Technological Forecasting and Social Change, 175, 121359. https://doi.org/10.1016/j.techfore.2021.121359
+
+Moss, J. (2021, June 27). Technology adoption during pandemic has both harmed and helped, writes Jennifer Moss. CBC News. https://www.cbc.ca/news/canada/kitchener-waterloo/jennifer-moss-pandemic-covid-technology-use-1.6080811
+
+Nawaz, S., Bhowmik, J., Linden, T., & Mitchell, M. (2024). Adapting to the new normal: Understanding the impact of COVID-19 on technology usage and human behaviour. Entertainment Computing, 51, 100726. https://doi.org/10.1016/j.entcom.2024.100726
+
+OECD. (2023). OECD Employment Outlook 2023: Artificial Intelligence and the Labour Market. https://doi.org/10.1787/08785bba-en
+
+Police, R. C. M. (n.d.-a). Canadian Anti-Fraud Centre Fraud Reporting System Dataset—Open Government Portal. Retrieved September 19, 2025, from https://open.canada.ca/data/en/dataset/6a09c998-cddb-4a22-beff-4dca67ab892f
+
+Police, R. C. M. (n.d.-b). Canadian Anti-Fraud Centre’s Annual Reports—Open Government Portal. Retrieved September 19, 2025, from https://open.canada.ca/data/en/dataset/69c68f22-8a2a-43d1-8f4e-4017e3ffebba
+
+Ramsetty, A., & Adams, C. (2020). Impact of the digital divide in the age of COVID-19. Journal of the American Medical Informatics Association: JAMIA, 27(7), 1147–1148. https://doi.org/10.1093/jamia/ocaa078
+
+Statistics Canada. (2007, October 24). Canadian Internet Use Survey (CIUS): Other Reference Periods [Government Website]. https://www23.statcan.gc.ca/imdb/p2SV.pl?Function=getInstanceList&Id=1289009
+
+Statistics Canada. (2018, September 7). Canadian Internet Use Survey (CIUS): Detailed Information for 2018 [Government Website]. https://www23.statcan.gc.ca/imdb/p2SV.pl?Function=getSurvey&Id=1196799
+
+Statistics Canada. (2020a, September 8). Canadian Internet Use Survey (CIUS): Detailed information for 2022 [Government Website]. https://www23.statcan.gc.ca/imdb/p2SV.pl?Function=getSurvey&Id=1289009
+
+Statistics Canada. (2020b, September 8). Canadian Internet Use Survey (CIUS): Detailed Information for 2022 [Government Website]. https://www23.statcan.gc.ca/imdb/p2SV.pl?Function=getSurvey&Id=1289009
+
+Statistics Canada. (2020c, September 10). Canadian Internet Use Survey (CIUS): Detailed Information for 2020 [Government Website]. https://www23.statcan.gc.ca/imdb/p2SV.pl?Function=getSurvey&Id=1288039
+
+Statistics Canada. (2024). Canadian Internet Use Survey—Public Use Microdata File (PUMF No. 56M0003X). https://doi.org/10.25318/56m0003x-eng
+
+Statistics Canada Government of Canada. (2021). Canadian Perspectives Survey Series 5: Technology Use and Cyber Security During the Pandemic Public Use Microdata File [Dataset]. https://doi.org/10.25318/45250010-eng
+
+Steinburg, J. (2024). Trust in Canada: Recent Trends in Measures of Trust (p. 36). TRuST Scholarly Network. https://uwaterloo.ca/trust-research-undertaken-science-technology-scholarly-network/sites/default/files/uploads/documents/trust-in-canada-recent-trends-in-measures-of-trust-april-2024.pdf
+
+Stevenson, S. (2009). Digital Divide: A Discursive Move Away from the Real Inequities. The Information Society, 25(1), 1–22. https://doi.org/10.1080/01972240802587539
+
+Tsatsou, P. (2022). Vulnerable people’s digital inclusion: Intersectionality patterns and associated lessons. Information, Communication & Society, 25(10), 1475–1494. https://doi.org/10.1080/1369118X.2021.1873402
