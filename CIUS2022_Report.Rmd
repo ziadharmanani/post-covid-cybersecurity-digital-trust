@@ -1205,9 +1205,9 @@ The Residuals vs. Fitted plots provide visual evidence about variance constancy.
 Models 2, 3, 4, 5, and 6 display evidence of heteroscedasticity. Model 2 shows pronounced banding with clear stratification, where residuals cluster into distinct horizontal bands rather than scattering uniformly. Models 3, 4, 5, and 6 exhibit strong diagonal banding patterns, where residuals form parallel lines across fitted values. These patterns arise from the discrete, proportion-based nature of the outcome variables in these models. Since respondents can only achieve certain discrete values (e.g., 0%, 25%, 50%, 75%, 100%), the residual variance is inherently non-constant—it is constrained near the boundaries and varies across the range of fitted values.
 
 ```{r echo=FALSE}
-par(mfrow = c(4, 2), mar = c(2.5, 2.5, 2, 1), oma = c(0, 0, 0, 0))
+par(mfrow = c(2, 4), mar = c(2.5, 2.5, 2, 1), oma = c(0, 0, 0, 0))
 
-# Model 1
+
 model1 <- if ("lm_robust" %in% class(mod1)) lm(mod1$terms, data = df) else mod1
 qqnorm(residuals(model1), main = "Q-Q Plot: mod1", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
        xlab = "", ylab = "", cex.main = 1.1)
@@ -1217,7 +1217,7 @@ plot(fitted(model1), residuals(model1), xlab = "", ylab = "",
      cex.main = 1.1)
 abline(h = 0, col = "red")
 
-# Model 2
+
 model2 <- if ("lm_robust" %in% class(mod2)) lm(mod2$terms, data = df) else mod2
 qqnorm(residuals(model2), main = "Q-Q Plot: mod2", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
        xlab = "", ylab = "", cex.main = 1.1)
@@ -1227,7 +1227,7 @@ plot(fitted(model2), residuals(model2), xlab = "", ylab = "",
      cex.main = 1.1)
 abline(h = 0, col = "red")
 
-# Model 3
+
 model3 <- if ("lm_robust" %in% class(mod3)) lm(mod3$terms, data = df) else mod3
 qqnorm(residuals(model3), main = "Q-Q Plot: mod3", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
        xlab = "", ylab = "", cex.main = 1.1)
@@ -1237,7 +1237,7 @@ plot(fitted(model3), residuals(model3), xlab = "", ylab = "",
      cex.main = 1.1)
 abline(h = 0, col = "red")
 
-# Model 4
+#Model4
 model4 <- if ("lm_robust" %in% class(mod4)) lm(mod4$terms, data = df) else mod4
 qqnorm(residuals(model4), main = "Q-Q Plot: mod4", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
        xlab = "", ylab = "", cex.main = 1.1)
@@ -1246,6 +1246,10 @@ plot(fitted(model4), residuals(model4), xlab = "", ylab = "",
      main = "Residuals vs Fitted: mod4", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
      cex.main = 1.1)
 abline(h = 0, col = "red")
+
+par(mfrow = c(1, 1), mar = c(5, 4, 4, 2), oma = c(0, 0, 0, 0))
+
+par(mfrow = c(2, 4), mar = c(2.5, 2.5, 2, 1), oma = c(0, 0, 0, 0))
 
 # Model 5
 model5 <- if ("lm_robust" %in% class(mod5)) lm(mod5$terms, data = df) else mod5
