@@ -766,19 +766,22 @@ The CIUS features two broad types of variables relevant to this study:
 
 # 2.2 Initial Variables of Interest
 
-| Cyber Security                  | Trust                  | Demographics              |
-|---------------------------------|------------------------|---------------------------|
-| Personal Data Protection        | Trust in Technologies  | Age group                 |
-| ID Verification Measures        | Trust in Organizations | Gender                    |
-| Cyber security Incidents        |                        | Location density          |
-| Financial Loss                  |                        | Family income quintile    |
-| Post-Incident Actions           |                        | Highest education         |
-| PC/Laptop Protection            |                        | Life satisfaction         |
-|                                 |                        | Employment status         |
-|                                 |                        | Immigrant status          |
-|                                 |                        | Visible minority          |
-|                                 |                        | Disability status         |
-|                                 |                        | Indigenous identity       |
+```{r echo=FALSE, results='hide'}
+var_interest <- tibble(
+  `Cyber Security` = c("Personal Data Protection", "ID Verification Measures",
+                       "Cyber security Incidents", "Financial Loss",
+                       "Post-Incident Actions", "PC/Laptop Protection", "", "", "", "", ""),
+  Trust = c("Trust in Technologies", "Trust in Organizations",
+            "", "", "", "", "", "", "", "", ""),
+  Demographics = c("Age group", "Gender", "Location density",
+                   "Family income quintile", "Highest education",
+                   "Life satisfaction", "Employment status",
+                   "Immigrant status", "Visible minority",
+                   "Disability status", "Indigenous identity")
+)
+
+kable(var_interest, caption = "Initial Variables of Interest")
+```
 
 # 2.3 Pain Point
 
@@ -857,9 +860,38 @@ df <- makeTrustScore(df, varsTrust, "trustScore")
 
 ```{r Chi-Square Tests, echo=FALSE}
 
-# Calling the Function
+# Create lookup table for variable names
+var_lookup <- tibble(
+  variable = c("LUC_RST", "AGE_GRP", "HINCQUIN", "EDU", "FD_G020A", 
+               "GENDER", "EMP", "IMM_STA", "VISMIN", "DIS_10", "ABM"),
+  Variable = c("Location density", "Age group", "Family income quintile", 
+               "Highest education", "Life satisfaction", "Gender", 
+               "Employment status", "Immigrant status", "Visible minority", 
+               "Disability status", "Indigenous identity")
+)
 
-kable(catChiSum(df, varsDemo), digits=4, align = "r") 
+# Get your chi-square results
+chi_results <- catChiSum(df, varsDemo)
+
+# Simpler: just replace the values directly
+chi_results$variable <- case_when(
+  chi_results$variable == "LUC_RST" ~ "Location density",
+  chi_results$variable == "AGE_GRP" ~ "Age group",
+  chi_results$variable == "HINCQUIN" ~ "Family income quintile",
+  chi_results$variable == "EDU" ~ "Highest education",
+  chi_results$variable == "FD_G020A" ~ "Life satisfaction",
+  chi_results$variable == "GENDER" ~ "Gender",
+  chi_results$variable == "EMP" ~ "Employment status",
+  chi_results$variable == "IMM_STA" ~ "Immigrant status",
+  chi_results$variable == "VISMIN" ~ "Visible minority",
+  chi_results$variable == "DIS_10" ~ "Disability status",
+  chi_results$variable == "ABM" ~ "Indigenous identity"
+)
+
+kable(chi_results, digits = 4, align = "r",
+      caption = "Chi-Square Tests for Demographic Variables",
+      booktabs = TRUE) %>%  # Add booktabs = TRUE for professional lines
+  kable_styling(full_width = FALSE, font_size = 12, latex_options = "hold_position")
 
 ```
   We evaluated associations between demographic categories and cybersecurity-related binary indicators using chi-square tests of independence. Many demographic variables show statistically significant relationships with cybersecurity measures, a pattern that reflects both substantive differences between subgroups and the large sample size, which increases power to detect small effects. Key results include very large chi-square statistics and substantial effect sizes for place-based and demographic variables: for example, location density (LUC_RST), age group (AGE_GRP), Indigenous identity (ABM), visible minority (VISMIN), immigrant status (IMM_STA), and disability status (DIS_10) all produced chi-square statistics and Cohen’s W indicating large effects. Other predictors such as education (EDU) and income quintile (HINCQUIN) exhibited smaller but still statistically significant associations. These results are reported in tabular form in the appendix and discussed below. 
@@ -880,22 +912,27 @@ pbp4 <- propBarPlot(df, EDU, labsEdu, "Highest Education Level")
 # Patchwork ----
 
 (pbp1 | pbp2) /
-(pbp3 | pbp4)
+(pbp3 | pbp4) +
+  plot_annotation(
+    title = "Distribution of Key Demographic Variables",
+    theme = theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
+  )
 ```
 
 ```{r Categorical Visualizations II, echo=FALSE}
-
 # Calling Proportion Bar Plots ----
-
 pbp5 <- propBarPlot(df, IMM_STA, labsBin, "Immigration Status")
 pbp6 <- propBarPlot(df, VISMIN, labsBin, "Visible Minority")
 pbp7 <- propBarPlot(df, DIS_10, labsBin, "Disability")
 pbp8 <- propBarPlot(df, ABM, labsBin, "Indigenous Identity")
 
 # Patchwork ----
-
 (pbp5 | pbp6) /
-(pbp7 | pbp8)
+(pbp7 | pbp8) +
+  plot_annotation(
+    title = "",
+    theme = theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
+  )
 ```
 
   Five proportion bar charts present the distribution of major demographic groups in the dataset. 
@@ -905,15 +942,16 @@ Together, these visualizations help clarify who is represented in the survey and
 
 Overall, these visualizations clarify the demographic landscape of the dataset and ensure that subsequent analyses are interpreted in the context of the sample’s population structure.
 
-```{r Categorical Visualizations III, echo=FALSE}
-
+```{r Categorical Visualizations III, echo=FALSE, fig.cap="Figure 5: Distribution of Life Satisfaction"}
 # Calling Proportion Bar Plots ----
-
 pbp9 <- propBarPlot(df, FD_G020A, labsSat, "Life Satisfaction")
 
 # Patchwork ----
-
-(pbp9)
+pbp9 +
+  plot_annotation(
+    title = "Distribution of Life Satisfaction",
+    theme = theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
+  )
 ```
   A particularly notable pattern is the under-representation of respondents reporting life satisfaction below 70%. This gap suggests the dataset captures relatively more individuals with moderate-to-high wellbeing. Since life satisfaction correlates with stress, risk perception, and digital confidence, this imbalance likely shapes how cybersecurity habits and trust levels appear in the analyses.
 
@@ -923,7 +961,6 @@ pbp9 <- propBarPlot(df, FD_G020A, labsSat, "Life Satisfaction")
   We constructed six continuous, proportion-based scores from grouped CIUS items to summarize multi-item behavior and attitude domains. Each score is scaled between 0 and 1 (with the exception being trustScore, with a range of -1 to 1), where higher values indicate more protective behaviors, greater exposure, stronger response activity, or higher trust:
 
 ```{r table - derived scores, echo=FALSE}
-
 derived_scores <- data.frame(
   Score = c(
     "datSecScore",
@@ -951,8 +988,9 @@ derived_scores <- data.frame(
   )
 )
 
-kable(derived_scores, align = "l") 
-
+kable(derived_scores, align = "l",
+      caption = "Derived Scores") %>%
+  kable_styling(full_width = FALSE, font_size = 12)
 ```
 
   These derived scores preserve the multi-dimensionality of the original items while reducing sparsity and enabling parametric modelling.
@@ -961,47 +999,43 @@ kable(derived_scores, align = "l")
 ## Central Tendency of Scores
 
 ```{r Table: Numeric Summary Table (Central Tendency), echo=FALSE}
-
 varsScores <- c("datSecScore","idSecScore","pcSecScore","expoScore","responseScore","trustScore")
 
-knitr::kable(sumNumTabCent(df,varsScores), digits=2) 
-
+knitr::kable(sumNumTabCent(df, varsScores), digits = 2,
+             caption = "Central Tendency Measures for Derived Scores") %>%
+  kable_styling(full_width = FALSE, font_size = 14)
 ```
 
   Across the sample, respondents report moderate engagement in data protection and trust, lower uptake of ID/device protection, limited incident exposure, and modest post-incident activity among those who experienced incidents. The high missingness for responseScore is expected and arises because many respondents did not report any incidents; treating missingness appropriately (for example, conditioning on incident experience or using pairwise approaches) is important for inference
 
 ## Visualizing Scores
 
-```{r Density Plots, echo=FALSE, warning = FALSE}
-
+```{r Density Plots, echo=FALSE, warning = FALSE, fig.cap="Figure 7: Density plots of derived cybersecurity and trust scores"}
 hist1 <- ggplot(df, aes(x=datSecScore)) + 
   geom_density(fill="#0008a8", alpha=0.5, color="#0008a8", bw=0.25) +
   theme_minimal()
-
 hist2 <- ggplot(df, aes(x=idSecScore)) + 
   geom_density(fill="#0008a8", alpha=0.5, color="#0008a8", bw=0.25) +
   theme_minimal()
-
 hist3 <- ggplot(df, aes(x=pcSecScore)) + 
   geom_density(fill="#0008a8", alpha=0.5, color="#0008a8", bw=0.25) +
   theme_minimal()
-
 hist4 <- ggplot(df, aes(x=expoScore)) + 
   geom_density(fill="#0008a8", alpha=0.5, color="#0008a8", bw=0.25) +
   theme_minimal()
-
 hist5 <- ggplot(df, aes(x=responseScore)) + 
   geom_density(fill="#0008a8", alpha=0.5, color="#0008a8", bw=0.25) +
   theme_minimal()
-
 hist6 <- ggplot(df, aes(x=trustScore)) + 
   geom_density(fill="#0008a8", alpha=0.5, color="#0008a8", bw=0.25) +
   theme_minimal()
 
-
 (hist1 | hist2 | hist3) /
-(hist4 | hist5 | hist6)
-
+(hist4 | hist5 | hist6) +
+  plot_annotation(
+    title = "Density Plots of Derived Cybersecurity and Trust Scores",
+    theme = theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
+  )
 ```
 *Density plots of derived cybersecurity and trust scores (datSecScore, idSecScore, pcSecScore, expoScore, responseScore, trustScore). Note: density calculations exclude non-finite values; responseScore visualizations restricted to respondents reporting at least one incident.*
 
@@ -1265,9 +1299,8 @@ The Residuals vs. Fitted plots provide visual evidence about variance constancy.
 
   Models 2, 3, 4, 5, and 6 display evidence of heteroscedasticity. Model 2 shows pronounced banding with clear stratification, where residuals cluster into distinct horizontal bands rather than scattering uniformly. Models 3, 4, 5, and 6 exhibit strong diagonal banding patterns, where residuals form parallel lines across fitted values. These patterns arise from the discrete, proportion-based nature of the outcome variables in these models. Since respondents can only achieve certain discrete values (e.g., 0%, 25%, 50%, 75%, 100%), the residual variance is inherently non-constant—it is constrained near the boundaries and varies across the range of fitted values.
 
-```{r echo=FALSE}
-par(mfrow = c(2, 4), mar = c(2.5, 2.5, 2, 1), oma = c(0, 0, 0, 0))
-
+```{r, echo=FALSE}
+par(mfrow = c(2, 4), mar = c(2.5, 2.5, 2, 1), oma = c(3, 0, 3, 0))  # Increased oma for title space
 
 model1 <- if ("lm_robust" %in% class(mod1)) lm(mod1$terms, data = df) else mod1
 qqnorm(residuals(model1), main = "Q-Q Plot: mod1", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
@@ -1278,7 +1311,6 @@ plot(fitted(model1), residuals(model1), xlab = "", ylab = "",
      cex.main = 1.1)
 abline(h = 0, col = "red")
 
-
 model2 <- if ("lm_robust" %in% class(mod2)) lm(mod2$terms, data = df) else mod2
 qqnorm(residuals(model2), main = "Q-Q Plot: mod2", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
        xlab = "", ylab = "", cex.main = 1.1)
@@ -1287,7 +1319,6 @@ plot(fitted(model2), residuals(model2), xlab = "", ylab = "",
      main = "Residuals vs Fitted: mod2", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
      cex.main = 1.1)
 abline(h = 0, col = "red")
-
 
 model3 <- if ("lm_robust" %in% class(mod3)) lm(mod3$terms, data = df) else mod3
 qqnorm(residuals(model3), main = "Q-Q Plot: mod3", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
@@ -1298,7 +1329,6 @@ plot(fitted(model3), residuals(model3), xlab = "", ylab = "",
      cex.main = 1.1)
 abline(h = 0, col = "red")
 
-#Model4
 model4 <- if ("lm_robust" %in% class(mod4)) lm(mod4$terms, data = df) else mod4
 qqnorm(residuals(model4), main = "Q-Q Plot: mod4", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
        xlab = "", ylab = "", cex.main = 1.1)
@@ -1308,11 +1338,14 @@ plot(fitted(model4), residuals(model4), xlab = "", ylab = "",
      cex.main = 1.1)
 abline(h = 0, col = "red")
 
+# Add overall title for first set
+mtext("Q-Q Plot & Residuals vs Fitted: Models 1-4", outer = TRUE, cex = 1.3, font = 2, line = 1)
+```
+```{r, echo=FALSE}
 par(mfrow = c(1, 1), mar = c(5, 4, 4, 2), oma = c(0, 0, 0, 0))
 
-par(mfrow = c(2, 4), mar = c(2.5, 2.5, 2, 1), oma = c(0, 0, 0, 0))
+par(mfrow = c(2, 4), mar = c(2.5, 2.5, 2, 1), oma = c(3, 0, 3, 0))
 
-# Model 5
 model5 <- if ("lm_robust" %in% class(mod5)) lm(mod5$terms, data = df) else mod5
 qqnorm(residuals(model5), main = "Q-Q Plot: mod5", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
        xlab = "", ylab = "", cex.main = 1.1)
@@ -1322,7 +1355,6 @@ plot(fitted(model5), residuals(model5), xlab = "", ylab = "",
      cex.main = 1.1)
 abline(h = 0, col = "red")
 
-# Model 6
 model6 <- if ("lm_robust" %in% class(mod6)) lm(mod6$terms, data = df) else mod6
 qqnorm(residuals(model6), main = "Q-Q Plot: mod6", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
        xlab = "", ylab = "", cex.main = 1.1)
@@ -1332,7 +1364,6 @@ plot(fitted(model6), residuals(model6), xlab = "", ylab = "",
      cex.main = 1.1)
 abline(h = 0, col = "red")
 
-# Model 7
 model7 <- if ("lm_robust" %in% class(mod7)) lm(mod7$terms, data = df) else mod7
 qqnorm(residuals(model7), main = "Q-Q Plot: mod7", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
        xlab = "", ylab = "", cex.main = 1.1)
@@ -1342,6 +1373,9 @@ plot(fitted(model7), residuals(model7), xlab = "", ylab = "",
      cex.main = 1.1)
 abline(h = 0, col = "red")
 
+# Add overall title for second set
+mtext("Q-Q Plot & Residuals vs Fitted: Models 5-7", outer = TRUE, cex = 1.3, font = 2, line = 1)
+
 par(mfrow = c(1, 1), mar = c(5, 4, 4, 2), oma = c(0, 0, 0, 0))
 ```
 
@@ -1350,11 +1384,67 @@ par(mfrow = c(1, 1), mar = c(5, 4, 4, 2), oma = c(0, 0, 0, 0))
 ## Top Coefficients of *Model 1* (`trustScore` ~ Demographics)
 
 ```{r Modelling 1, echo=FALSE}
+# Create comprehensive lookup for all variables
+var_lookup <- c(
+  # Life Satisfaction
+  "FD_G020A11" = "Life Satisfaction (100%)",
+  "FD_G020A10" = "Life Satisfaction (90%)",
+  "FD_G020A9" = "Life Satisfaction (80%)",
+  "FD_G020A8" = "Life Satisfaction (70%)",
+  "FD_G020A7" = "Life Satisfaction (60%)",
+  "FD_G020A6" = "Life Satisfaction (50%)",
+  "FD_G020A5" = "Life Satisfaction (40%)",
+  "FD_G020A4" = "Life Satisfaction (30%)",
+  "FD_G020A3" = "Life Satisfaction (20%)",
+  "FD_G020A2" = "Life Satisfaction (10%)",
+  "FD_G020A1" = "Life Satisfaction (0%)",
+  
+  # Age Groups
+  "AGE_GRP6" = "Age Group (65+)",
+  "AGE_GRP5" = "Age Group (55-64)",
+  "AGE_GRP4" = "Age Group (45-54)",
+  "AGE_GRP3" = "Age Group (35-44)",
+  "AGE_GRP2" = "Age Group (25-34)",
+  "AGE_GRP1" = "Age Group (15-24)",
+  
+  # Education
+  "EDU3" = "University Degree",
+  "EDU2" = "Some Post Secondary Education",
+  "EDU1" = "High School or Less",
+  
+  # Income Quintiles
+  "HINCQUIN5" = "Income Quintile (Highest)",
+  "HINCQUIN4" = "Income Quintile (4th)",
+  "HINCQUIN3" = "Income Quintile (3rd)",
+  "HINCQUIN2" = "Income Quintile (2nd)",
+  "HINCQUIN1" = "Income Quintile (Lowest)",
+  
+  # Location
+  "LUC_RST3" = "Rural",
+  "LUC_RST2" = "Small Urban",
+  "LUC_RST1" = "Large Urban",
+  
+  # Binary Demographics
+  "GENDER1" = "Male",
+  "GENDER2" = "Female",
+  "EMP1" = "Employed",
+  "IMM_STA1" = "Immigrant",
+  "VISMIN1" = "Visible Minority",
+  "DIS_101" = "Has Disability",
+  "ABM1" = "Indigenous"
+)
 
 options(scipen=0)
 
-kable(head(getSigCoefs(mod1), 7), digits=3) 
+# Get coefficients and replace terms
+mod1_table <- head(getSigCoefs(mod1), 7)
+mod1_table$term <- ifelse(mod1_table$term %in% names(var_lookup), 
+                          var_lookup[mod1_table$term], 
+                          mod1_table$term)
 
+kable(mod1_table, digits=3,
+      caption = "Top Coefficients of Model 1 (trustScore ~ Demographics)") %>%
+  kable_styling(full_width = FALSE, font_size = 14)
 ```
 
 **Model 1** suggests that respondents with higher life satisfaction (`FD_G020A7`–`11`) tend to report greater digital trust, while older age groups (`AGE_GRP5`–`6`) show slightly lower trust levels in practice.
@@ -1363,10 +1453,17 @@ kable(head(getSigCoefs(mod1), 7), digits=3)
 ## Top Coefficients of *Model 2* (`expoScore` ~ Demographics)
 
 ```{r Modelling 2, echo=FALSE}
+options(scipen=0)
 
-kable(head(getSigCoefs(mod2), 5), digits=3) 
+# Get coefficients and replace terms
+mod2_table <- head(getSigCoefs(mod2), 5)
+mod2_table$term <- ifelse(mod2_table$term %in% names(var_lookup), 
+                          var_lookup[mod2_table$term], 
+                          mod2_table$term)
 
-
+kable(mod2_table, digits=3,
+      caption = "Top Coefficients of Model 2 (expoScore ~ Demographics)") %>%
+  kable_styling(full_width = FALSE, font_size = 14)
 ```
 
 **Model 2** suggests that people with higher education levels (`EDU2`–`3`) tend to report greater exposure to cybersecurity incidents, while those with higher life satisfaction (`FD_G020A9`–`11`) report slightly lower exposure.
@@ -1374,10 +1471,17 @@ kable(head(getSigCoefs(mod2), 5), digits=3)
 ## Top Coefficients of *Model 3* (`datSecScore` ~ Demographics)
 
 ```{r Modelling 3, echo=FALSE}
+options(scipen=0)
 
-kable(head(getSigCoefs(mod3), 5), digits=3) 
+# Get coefficients and replace terms
+mod3_table <- head(getSigCoefs(mod3), 5)
+mod3_table$term <- ifelse(mod3_table$term %in% names(var_lookup), 
+                          var_lookup[mod3_table$term], 
+                          mod3_table$term)
 
-
+kable(mod3_table, digits=3,
+      caption = "Top Coefficients of Model 3 (datSecScore ~ Demographics)") %>%
+  kable_styling(full_width = FALSE, font_size = 14)
 ```
 
 The results in **Model 3** indicate that older adults (`AGE_GRP4`–`6`) engage in markedly fewer personal data-protection behaviours, while higher-educated respondents (`EDU2`–`3`) do more—showing a strong education gradient alongside a noticeable age-related decline.
@@ -1385,41 +1489,81 @@ The results in **Model 3** indicate that older adults (`AGE_GRP4`–`6`) engage 
 ## Top Coefficients of *Model 4* (`idSecScore` ~ Demographics)
 
 ```{r Modelling 4, echo=FALSE}
+options(scipen=0)
 
-kable(head(getSigCoefs(mod4), 5), digits=3) 
+# Get coefficients and replace terms
+mod4_table <- head(getSigCoefs(mod4), 5)
+mod4_table$term <- ifelse(mod4_table$term %in% names(var_lookup), 
+                          var_lookup[mod4_table$term], 
+                          mod4_table$term)
+
+kable(mod4_table, digits=3,
+      caption = "Top Coefficients of Model 4 (idSecScore ~ Demographics)") %>%
+  kable_styling(full_width = FALSE, font_size = 14)
 ```
 
 Findings in **Model 4** show that older age groups (`AGE_GRP4`–`6`) use fewer ID-security measures, whereas more educated individuals (`EDU2`–`3`) adopt significantly more, reinforcing a consistent pattern where education boosts digital security uptake as age reduces it.
 
 ## Top Coefficients of *Model 5* (`pcSecScore` ~ Demographics)
 
-```{r Modelling 5, echo=FALSE}
+```{r Modelling 5, echo=FALSE, fig.cap="Figure 15: Top Coefficients of Model 5 (pcSecScore ~ Demographics)"}
+options(scipen=0)
 
-kable(head(getSigCoefs(mod5), 5), digits=3) 
+# Get coefficients and replace terms
+mod5_table <- head(getSigCoefs(mod5), 5)
+mod5_table$term <- ifelse(mod5_table$term %in% names(var_lookup), 
+                          var_lookup[mod5_table$term], 
+                          mod5_table$term)
 
-
+kable(mod5_table, digits=3,
+      caption = "Top Coefficients of Model 5 (pcSecScore ~ Demographics)") %>%
+  kable_styling(full_width = FALSE, font_size = 14)
 ```
 
 **Model 5** highlights that PC/laptop protection measures are most common among higher-educated respondents (`EDU2`–`3`), with smaller increases among men (`GENDER1`) and those reporting higher life satisfaction (`FD_G020A8`–`9`), suggesting both social and attitudinal influences.
 
 ## Top Coefficients of *Model 6* (`responseScore` ~ Demographics)
 
-```{r Modelling 6, echo=FALSE}
+```{r Modelling 6, echo=FALSE, fig.cap="Figure 16: Top Coefficients of Model 6 (responseScore ~ Demographics)"}
+options(scipen=0)
 
-kable(head(getSigCoefs(mod6), 5), digits=3) 
+# Get coefficients and replace terms
+mod6_table <- head(getSigCoefs(mod6), 5)
+mod6_table$term <- ifelse(mod6_table$term %in% names(var_lookup), 
+                          var_lookup[mod6_table$term], 
+                          mod6_table$term)
 
-
+kable(mod6_table, digits=3,
+      caption = "Top Coefficients of Model 6 (responseScore ~ Demographics)") %>%
+  kable_styling(full_width = FALSE, font_size = 14)
 ```
 
 Here, disabled respondents (`DIS_101`), more educated individuals (`EDU2`–`EDU3`), and Indigenous respondents (`ABM1`) were more likely to take action after cyber incidents—an interesting pattern that points to greater response activity among groups who often face higher digital risk.
 
 ## Top Coefficients of *Model 7* (`trustScore` ~ Demographics)
 
-```{r Modelling 7, echo=FALSE}
+```{r Modelling 7, echo=FALSE, fig.cap="Figure 17: Top Coefficients of Model 7 (trustScore ~ All Other Scores)"}
+options(scipen=0)
 
-kable(head(getSigCoefs(mod7), 5), digits=3) 
+# Get coefficients and replace terms
+mod7_table <- head(getSigCoefs(mod7), 5)
 
+# Model 7 uses score variables, so add those to lookup
+score_lookup <- c(
+  "idSecScore" = "ID Security Score",
+  "expoScore" = "Exposure Score",
+  "datSecScore" = "Data Security Score",
+  "pcSecScore" = "PC Security Score",
+  "responseScore" = "Response Score"
+)
 
+mod7_table$term <- ifelse(mod7_table$term %in% names(score_lookup), 
+                          score_lookup[mod7_table$term], 
+                          mod7_table$term)
+
+kable(mod7_table, digits=3,
+      caption = "Top Coefficients of Model 7 (trustScore ~ All Other Scores)") %>%
+  kable_styling(full_width = FALSE, font_size = 14)
 ```
 
 Finally, **Model 7** shows that trust is highest among those with stronger ID-security practices (`idSecScore`) and lowest among individuals with greater exposure to incidents (`expoScore`) or weaker data-protection habits (`datSecScore`).
