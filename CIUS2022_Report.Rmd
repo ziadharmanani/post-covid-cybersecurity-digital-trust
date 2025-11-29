@@ -8,9 +8,7 @@ output:
 ---
 
 ```{r setup presentation styles, include=FALSE}
-
 # Libraries ----
-
 # Core data wrangling + viz
 library(tidyverse)   # includes ggplot2, forcats, purrr, etc.
 library(janitor)
@@ -35,6 +33,8 @@ library(cli)
 
 ```{r Setup, include=FALSE}
 # Installing & Adding Libraries (Function) ----
+
+
 load_pkgs <- function(...) {
   pkgs <- as.character(match.call(expand.dots = TRUE))[-1]
   to_install <- pkgs[!pkgs %in% installed.packages()[, "Package"]]
@@ -729,11 +729,11 @@ df <- df %>%
 # I Overview
 
 # 1.1 Background
-The COVID-19 pandemic triggered an abrupt and unprecedented shift toward digital life in Canada. Between 2020 and 2022, daily activities such as work, financial transactions, education, and social engagement moved online at a scale and speed not previously seen. As public health restrictions eased and in-person routines resumed, Canadians were left navigating a hybrid environment, where digital systems remained deeply embedded in everyday life. This rapid digitization not only transformed online habits, but also reshaped how people perceived cyber security, digital risks, and the institutions that manage and protect their data.
+  The COVID-19 pandemic triggered an abrupt and unprecedented shift toward digital life in Canada. Between 2020 and 2022, daily activities such as work, financial transactions, education, and social engagement moved online at a scale and speed not previously seen. As public health restrictions eased and in-person routines resumed, Canadians were left navigating a hybrid environment, where digital systems remained deeply embedded in everyday life. This rapid digitization not only transformed online habits, but also reshaped how people perceived cybersecurity, digital risks, and the institutions that manage and protect their data.
 
-Examining cybersecurity attitudes and experiences in the immediate post-pandemic period is critical. Early evidence suggests that the pandemic widened digital inequalities, exposed new vulnerabilities, and increased public reliance on complex digital infrastructures. Yet less is known about how different demographic groups adapted after the “digital storm”: who continued to experience cyber incidents, who engaged in protective behaviors, and how trust in technologies and organizations evolved once emergency digital dependence subsided.
+  Examining cybersecurity attitudes and experiences in the immediate post-pandemic period is critical. Early evidence suggests that the pandemic widened digital inequalities, exposed new vulnerabilities, and increased public reliance on complex digital infrastructures. Yet less is known about how different demographic groups adapted after the “digital storm”: who continued to experience cyber incidents, who engaged in protective behaviors, and how trust in technologies and organizations evolved once emergency digital dependence subsided.
 
-This study investigates patterns of cybersecurity behavior, incident exposure, and digital trust in Canada in 2022 using the Canadian Internet Use Survey (CIUS), a nationally representative dataset. We focus on identifying which groups were more likely to encounter cyber incidents, how demographic factors shape protective behaviors and how cybersecurity experiences relate to digital trust in the post-COVID context.
+  This study investigates patterns of cybersecurity behavior, incident exposure, and digital trust in Canada in 2022 using the Canadian Internet Use Survey (CIUS), a nationally representative dataset. We focus on identifying which groups were more likely to encounter cyber incidents, how demographic factors shape protective behaviors, and how cybersecurity experiences relate to digital trust in the post-COVID context.
 
 # 1.2 Research Question
 Two central questions guide the analysis:
@@ -741,28 +741,28 @@ Two central questions guide the analysis:
 Who in Canada was more likely to experience or notice cyber incidents in the post‑COVID period, in 2022?
 How do Canadians feel about cybersecurity and digital trust after the pandemic, and how are they responding to the  risks and habits shaped by that period?
 
-These questions address both the distribution of digital harm and the behavioral and attitudinal dynamics that shape individuals’ security practices and trust online.
+  These questions address both the distribution of digital harm and the behavioral and attitudinal dynamics that shape individuals’ security practices and trust online.
 
 # 1.3 Implications & Method
 
 ## Potential Impact
-Identifying which groups are most vulnerable to cybersecurity risks (and how they respond to them) has meaningful implications for public policy and digital inclusion efforts. Insights from this study can inform targeted educational programs, resource allocation, and support strategies designed to reduce unequal exposure to cyber harm. Therefore, understanding patterns of protection, incident experience and trust can guide initiatives aimed at strengthening digital resilience and building a more equitable and trustworthy digital environment in Canada.
+  Identifying which groups are most vulnerable to cybersecurity risks (and how they respond to them) has meaningful implications for public policy and digital inclusion efforts. Insights from this study can inform targeted educational programs, resource allocation, and support strategies designed to reduce unequal exposure to cyber harm. Therefore, understanding patterns of protection, incident experience and trust can guide initiatives aimed at strengthening digital resilience and building a more equitable and trustworthy digital environment in Canada.
 
 ## Methodology
-To investigate these questions, we analyze micro data from the 2022 Canadian Internet Use Survey (CIUS), a national Statistics Canada survey that captures Canadians’ digital behaviors, cybersecurity practices, incident experiences, and trust in technologies and institutions. The dataset includes 25,118 respondents and 1,342 variables, linking demographic characteristics to detailed cybersecurity and trust-related measures. From this high-dimensional dataset, we extract relevant variables and construct proportion-based cybersecurity and trust scores to summarize multi-item behaviors without losing conceptual nuance. These derived measures form the basis for exploratory analysis and predictive modelling.
+  To investigate these questions, we analyze micro data from the 2022 Canadian Internet Use Survey (CIUS), a national Statistics Canada survey that captures Canadians’ digital behaviors, cybersecurity practices, incident experiences, and trust in technologies and institutions. The dataset includes 25,118 respondents and 1,342 variables, linking demographic characteristics to detailed cybersecurity and trust-related measures. From this high-dimensional dataset, we extract relevant variables and construct proportion-based cybersecurity and trust scores to summarize multi-item behaviors without losing conceptual nuance. These derived measures form the basis for exploratory analysis and predictive modelling.
 
 # II Exploratory Data Analysis
 
 # 2.1 The Original Dataset
-The 2022 Canadian Internet Use Survey (CIUS) contains a wide array of variables describing respondents’ digital behaviors, cybersecurity practices, and socio-demographic characteristics. Before analysis, we conducted an initial audit of missing values and response patterns. Across the full dataset, 14.72% of responses fell into non-informative categories such as Valid Skip, Don’t Know, Refusal, or Not Stated. These patterns are typical of large-scale surveys involving complex behavioral items, but they underscore the need for careful pre-processing.
+  The 2022 Canadian Internet Use Survey (CIUS) contains a wide array of variables describing respondents’ digital behaviors, cybersecurity practices, and socio-demographic characteristics. Before analysis, we conducted an initial audit of missing values and response patterns. Across the full dataset, 14.72% of responses fell into non-informative categories such as Valid Skip, Don’t Know, Refusal, or Not Stated. These patterns are typical of large-scale surveys involving complex behavioral items, but they underscore the need for careful pre-processing.
 
 The CIUS features two broad types of variables relevant to this study:
 
-Demographic variables, capturing characteristics such as age, gender, income, education, immigrant status, visible minority status, and disability.
+  Demographic variables, capturing characteristics such as age, gender, income, education, immigrant status, visible minority status, and disability.
 
-Cybersecurity and trust-related variables, including protection behaviors, incident experiences, post-incident responses, financial impact, and trust in technologies and organizations.
+  Cybersecurity and trust-related variables, including protection behaviors, incident experiences, post-incident responses, financial impact, and trust in technologies and organizations.
 
-Several categories, such as device types, social media activities, online government services, e-commerce behavior, and detailed digital skills, were excluded from the present analysis because they were either out of scope or not directly tied to our research questions.
+  Several categories, such as device types, social media activities, online government services, e-commerce behavior, and detailed digital skills, were excluded from the present analysis because they were either out of scope or not directly tied to our research questions.
 
 # 2.2 Initial Variables of Interest
 
@@ -783,7 +783,7 @@ Several categories, such as device types, social media activities, online govern
 # 2.3 Pain Point
 
 ## Too-Granular Variables
-A major feature of the CIUS is its extensive use of “select all that apply” questions. Each individual response option becomes a separate binary column (e.g., SP_010A, SP_010B, SP_010C), leading to extremely high dimensional  and sparse variables. For example, the Personal Data Protection category (SP_010) consists of items such as:
+  A major feature of the CIUS is its extensive use of “select all that apply” questions. Each individual response option becomes a separate binary column (e.g., SP_010A, SP_010B, SP_010C), leading to extremely high dimensional  and sparse variables. For example, the Personal Data Protection category (SP_010) consists of items such as:
 
 **Personal Data Protection (SP_010)**
 SP_010A: Limited access to location
@@ -796,26 +796,26 @@ SP_010Z: None of these activities
 This structure provides detailed behavioral data but complicates statistical modelling and interpretability.
 
 ### Advantages of High-Granularity Data
-Allows fine-grained analysis of specific actions or experiences
-Preserves the full nuance of respondents’ digital behaviours
-Offers flexibility in constructing custom groupings or derived indicators
+- Allows fine-grained analysis of specific actions or experiences.
+- Preserves the full nuance of respondents’ digital behaviours.
+- Offers flexibility in constructing custom groupings or derived indicators.
 
 ### Disadvantages
-Produces sparse matrices that are difficult to visualize and model
-Increases risk of overfitting in predictive models
-Obscures broader behavioral patterns without variable reduction
-Multiplies the number of comparisons, complicating inferential interpretation
-These trade-offs motivated the development of new, more interpretable summary measures.
+- Produces sparse matrices that are difficult to visualize and model.
+- Increases risk of overfitting in predictive models.
+- Obscures broader behavioral patterns without variable reduction.
+- Multiplies the number of comparisons, complicating inferential interpretation.
+- These trade-offs motivated the development of new, more interpretable summary measures.
 
 # 2.4 Deriving New Variables
 
 We derived new variables to reduce hyper-granularity and find candidates for predictive modelling. 
 
 ### a. Binarized Variables
-For some item groups, we constructed binary indicators coded as 1 if the respondent selected any protective action (excluding “None”) and 0 otherwise. This reduction simplifies modelling of general behavior categories while preserving their patterns.
+  For some item groups, we constructed binary indicators coded as 1 if the respondent selected any protective action (excluding “None”) and 0 otherwise. This reduction simplifies modelling of general behavior categories while preserving their patterns.
 
 ### b. Simplifying Post-Incident Actions
-Items in SP_070A-G were grouped into broader categories (for example, reporting actions, security changes, account cleanup). This approach identifies response tendencies without relying on highly granular action-specific variables.
+  Items in SP_070A-G were grouped into broader categories (for example, reporting actions, security changes, account cleanup). This approach identifies response tendencies without relying on highly granular action-specific variables.
 
 ### c. Simplifying Incident Types
 Incident items (SP_050A-J) were aggregated into higher-level categories reflecting forms of cyberharm, such as fraud-related incidents, account compromise, or malicious content. These groupings highlight major incident patterns encountered by respondents.
@@ -830,7 +830,7 @@ The primary derived measures used in the modelling stage were proportion based s
   responseScore: Proportion of post-incident actions taken
   trustScore: Average trust level across technologies and organizations
 
-By summarizing categories into single proportion or change scores, we aimed to reduce hyper-granularity while preserving the intensity or breadth of behaviors and experiences. However, some of these derived variables overlap because they use the same source columns to help us consider which data framing works best on the available variables. We chose to work with the demographic variables and numerical scores derived from the cyber security and trust items, rather than the simplified categories or binary variables. The score-based approach allows us to reduce hyper-granularity while still preserving the underlying scale, nuance and proportional information embedded in the original survey responses.
+  By summarizing categories into single proportion or change scores, we aimed to reduce hyper-granularity while preserving the intensity or breadth of behaviors and experiences. However, some of these derived variables overlap because they use the same source columns to help us consider which data framing works best on the available variables. We chose to work with the demographic variables and numerical scores derived from the cybersecurity and trust items, rather than the simplified categories or binary variables. The score-based approach allows us to reduce hyper-granularity while still preserving the underlying scale, nuance and proportional information embedded in the original survey responses.
 
 ```{r Creating Numeric Variables (Scores), echo=FALSE}
 
@@ -862,9 +862,9 @@ df <- makeTrustScore(df, varsTrust, "trustScore")
 kable(catChiSum(df, varsDemo), digits=4, align = "r") 
 
 ```
-We evaluated associations between demographic categories and cybersecurity-related binary indicators using chi-square tests of independence. Many demographic variables show statistically significant relationships with cybersecurity measures, a pattern that reflects both substantive differences between subgroups and the large sample size, which increases power to detect small effects. Key results include very large chi-square statistics and substantial effect sizes for place-based and demographic variables: for example, location density (LUC_RST), age group (AGE_GRP), Indigenous identity (ABM), visible minority (VISMIN), immigrant status (IMM_STA), and disability status (DIS_10) all produced chi-square statistics and Cohen’s W indicating large effects. Other predictors such as education (EDU) and income quintile (HINCQUIN) exhibited smaller but still statistically significant associations. These results are reported in tabular form in the appendix and discussed below. 
+  We evaluated associations between demographic categories and cybersecurity-related binary indicators using chi-square tests of independence. Many demographic variables show statistically significant relationships with cybersecurity measures, a pattern that reflects both substantive differences between subgroups and the large sample size, which increases power to detect small effects. Key results include very large chi-square statistics and substantial effect sizes for place-based and demographic variables: for example, location density (LUC_RST), age group (AGE_GRP), Indigenous identity (ABM), visible minority (VISMIN), immigrant status (IMM_STA), and disability status (DIS_10) all produced chi-square statistics and Cohen’s W indicating large effects. Other predictors such as education (EDU) and income quintile (HINCQUIN) exhibited smaller but still statistically significant associations. These results are reported in tabular form in the appendix and discussed below. 
 
-The large chi-square values for some demographic variables, such as age, Indigenous status and disability, predominantly reflect persistent patterns of different exposure and participation in digital life. Because chi-square tests are sensitive to sample size, we also report effect-size estimates (Cohen’s W) to contextualize practical significance; several variables show non-trivial effect sizes that warrant substantive attention rather than simple dismissal as sample-size artifacts. 
+  The large chi-square values for some demographic variables, such as age, Indigenous status and disability, predominantly reflect persistent patterns of different exposure and participation in digital life. Because chi-square tests are sensitive to sample size, we also report effect-size estimates (Cohen’s W) to contextualize practical significance; several variables show non-trivial effect sizes that warrant substantive attention rather than simple dismissal as sample-size artifacts. 
 
 ## Visualizations of Proportion
 
@@ -898,10 +898,10 @@ pbp8 <- propBarPlot(df, ABM, labsBin, "Indigenous Identity")
 (pbp7 | pbp8)
 ```
 
-Five proportion bar charts present the distribution of major demographic groups in the dataset. 
-document. Together, these visualizations help clarify who is represented in the survey and what types of digital experiences we might expect across groups.
+  Five proportion bar charts present the distribution of major demographic groups in the dataset. 
+Together, these visualizations help clarify who is represented in the survey and what types of digital experiences we might expect across groups.
 
-Across these figures, several patterns stand out. First, the sample is strongly urban, which aligns with general population patterns but also hints that many respondents likely have greater exposure to digital systems and potentially more opportunities for cybersecurity incidents. Age and education distributions show broad representation but cluster around mid-adult age groups and individuals with post-secondary training, which is a population that is typically more active online and more likely to use multiple digital platforms. At the same time, several equity-relevant groups (immigrant, visible minority, Indigenous, disability status) appear in smaller proportions, underscoring the importance of treating their model estimates cautiously while still recognizing their relevance to understanding digital inequality.
+  Across these figures, several patterns stand out. First, the sample is strongly urban, which aligns with general population patterns, but also hints that many respondents likely have greater exposure to digital systems. This potentially allows for more cybersecurity incidents. Age and education distributions show broad representation but cluster around mid-adult age groups and individuals with post-secondary training, which is a population that is typically more active online and more likely to use multiple digital platforms. At the same time, several equity-relevant groups (immigrant, visible minority, Indigenous, disability status) appear in smaller proportions, underscoring the importance of treating their model estimates cautiously while still recognizing their relevance to understanding digital inequality.
 
 Overall, these visualizations clarify the demographic landscape of the dataset and ensure that subsequent analyses are interpreted in the context of the sample’s population structure.
 
@@ -915,12 +915,12 @@ pbp9 <- propBarPlot(df, FD_G020A, labsSat, "Life Satisfaction")
 
 (pbp9)
 ```
-A particularly notable pattern is the under-representation of respondents reporting life satisfaction below 70%. This gap suggests the dataset captures relatively more individuals with moderate-to-high wellbeing. Since life satisfaction correlates with stress, risk perception, and digital confidence, this imbalance likely shapes how cybersecurity habits and trust levels appear in the analyses.
+  A particularly notable pattern is the under-representation of respondents reporting life satisfaction below 70%. This gap suggests the dataset captures relatively more individuals with moderate-to-high wellbeing. Since life satisfaction correlates with stress, risk perception, and digital confidence, this imbalance likely shapes how cybersecurity habits and trust levels appear in the analyses.
 
-These visual patterns also point to broader limitations in survey reach. Like many national online-behaviour surveys, the CIUS may not fully capture groups who face structural barriers to digital access, such as individuals with very low income, unstable housing, limited literacy or inconsistent internet access. This limitation is essential when interpreting outcome differences: some findings may reflect who participated in the survey as much as underlying differences in cybersecurity behavior.
+  These visual patterns also point to broader limitations in survey reach. Like many national online-behaviour surveys, the CIUS may not fully capture groups who face structural barriers to digital access, such as individuals with very low income, unstable housing, limited literacy or inconsistent internet access. This limitation is essential when interpreting outcome differences: some findings may reflect who participated in the survey as much as underlying differences in cybersecurity behavior.
 
 # 2.6 The Derived Scores
-We constructed six continuous, proportion-based scores from grouped CIUS items to summarize multi-item behavior and attitude domains. Each score is scaled between 0 and 1 (with the exception being trustScore, with a range of -1 to 1), where higher values indicate more protective behaviors, greater exposure, stronger response activity, or higher trust:
+  We constructed six continuous, proportion-based scores from grouped CIUS items to summarize multi-item behavior and attitude domains. Each score is scaled between 0 and 1 (with the exception being trustScore, with a range of -1 to 1), where higher values indicate more protective behaviors, greater exposure, stronger response activity, or higher trust:
 
 ```{r table - derived scores, echo=FALSE}
 
@@ -955,7 +955,7 @@ kable(derived_scores, align = "l")
 
 ```
 
-These derived scores preserve the multi-dimensionality of the original items while reducing sparsity and enabling parametric modelling.
+  These derived scores preserve the multi-dimensionality of the original items while reducing sparsity and enabling parametric modelling.
 
 # 2.7 Numerical Variables (Scores)
 ## Central Tendency of Scores
@@ -968,7 +968,7 @@ knitr::kable(sumNumTabCent(df,varsScores), digits=2)
 
 ```
 
-Across the sample, respondents report moderate engagement in data protection and trust, lower uptake of ID/device protection, limited incident exposure, and modest post-incident activity among those who experienced incidents. The high missingness for responseScore is expected and arises because many respondents did not report any incidents; treating missingness appropriately (for example, conditioning on incident experience or using pairwise approaches) is important for inference
+  Across the sample, respondents report moderate engagement in data protection and trust, lower uptake of ID/device protection, limited incident exposure, and modest post-incident activity among those who experienced incidents. The high missingness for responseScore is expected and arises because many respondents did not report any incidents; treating missingness appropriately (for example, conditioning on incident experience or using pairwise approaches) is important for inference
 
 ## Visualizing Scores
 
@@ -1074,7 +1074,7 @@ mod7 <- lm(trustScore ~ expoScore + datSecScore + idSecScore + pcSecScore + resp
 
 # 3.1 Our Main Models
 
-We estimated seven regression models, each examining how demographic characteristics shape cybersecurity behaviours, incident exposure, digital trust, and post-incident actions. Models 1–6 focus on demographic effects, while Model 7 evaluates how the constructed cybersecurity scores collectively predict trust.
+  We estimated seven regression models, each examining how demographic characteristics shape cybersecurity behaviours, incident exposure, digital trust, and post-incident actions. Models 1–6 focus on demographic effects, while Model 7 evaluates how the constructed cybersecurity scores collectively predict trust.
 
 *Model 1*. `trustScore` ~ Demographics
 *Model 2*. `expoScore` ~ Demographics 
@@ -1084,28 +1084,28 @@ We estimated seven regression models, each examining how demographic characteris
 *Model 6*. `responseScore` ~ Demographics 
 *Model 7*. `trustScore`~ All Other Scores
 
-Each model uses categorical demographic factors (age, gender, income, education, immigrant status, visible minority status, disability status, Indigenous identity, employment status, location type, life satisfaction) to estimate how different social groups vary in cybersecurity behavior, vulnerability, and trust.
+  Each model uses categorical demographic factors (age, gender, income, education, immigrant status, visible minority status, disability status, Indigenous identity, employment status, location type, life satisfaction) to estimate how different social groups vary in cybersecurity behavior, vulnerability, and trust.
 
-Starting with Model 1 (trustScore ~ Demographics), we found that digital trust increases across the higher life-satisfaction groups, while respondents in the older age groups show slightly lower trust overall.
+  Starting with Model 1 (trustScore ~ Demographics), we found that digital trust increases across the higher life-satisfaction groups, while respondents in the older age groups show slightly lower trust overall.
 
-In Model 2 (expoScore ~ Demographics), we found that exposure to cybersecurity incidents increased across the higher education groups, while respondents in the higher life-satisfaction groups reported fewer incidents.
+  In Model 2 (expoScore ~ Demographics), we found that exposure to cybersecurity incidents increased across the higher education groups, while respondents in the higher life-satisfaction groups reported fewer incidents.
 
-Model 3 (datSecScore ~ Demographics) showed that personal data-protection behaviors decreased across the older age groups and increased across the higher education groups.
+  Model 3 (datSecScore ~ Demographics) showed that personal data-protection behaviors decreased across the older age groups and increased across the higher education groups.
 
-Model 4 (idSecScore ~ Demographics) showed a similar pattern for ID-security practices—older age groups adopted fewer measures, and higher education groups adopted more.
+  Model 4 (idSecScore ~ Demographics) showed a similar pattern for ID-security practices—older age groups adopted fewer measures, and higher education groups adopted more.
 
-In Model 5 (pcSecScore ~ Demographics), we found that PC and laptop protection was strongest among the higher education groups, with smaller increases among men and among respondents in the higher life-satisfaction groups.
+  In Model 5 (pcSecScore ~ Demographics), we found that PC and laptop protection was strongest among the higher education groups, with smaller increases among men and among respondents in the higher life-satisfaction groups.
 
-Model 6 (responseScore ~ Demographics) showed that disabled respondents, Indigenous respondents, employed people, and higher education groups were more likely to take action after experiencing a cyber incident.
+  Model 6 (responseScore ~ Demographics) showed that disabled respondents, Indigenous respondents, employed people, and higher education groups were more likely to take action after experiencing a cyber incident.
 
-Finally, Model 7 (trustScore ~ All other scores) showed that for every unit increase in ID-security practices trust increased, while greater exposure to incidents and stronger data-protection behaviors both predicted lower trust. Apologies for the typo on the screen—model seven is not trust regressed on demographics but rather trust regressed on the other scores.
+  Finally, Model 7 (trustScore ~ All other scores) showed that for every unit increase in ID-security practices trust increased, while greater exposure to incidents and stronger data-protection behaviors both predicted lower trust. 
 
 # 3.2 Testing Assumptions
 
 ### Model Performance and Generalization
-We evaluated seven linear regression models using a train-test split approach to assess both model performance and generalization capability. Models 1 through 6 predict various cybersecurity behavior and incident scores from demographic predictors, while Model 7 examines how trust scores relate to the composite security behavior scores. 
+  We evaluated seven linear regression models using a train-test split approach to assess both model performance and generalization capability. Models 1 through 6 predict various cybersecurity behavior and incident scores from demographic predictors, while Model 7 examines how trust scores relate to the composite security behavior scores. 
 
-Across all seven models, the training and testing metrics demonstrate remarkably close alignment, indicating minimal evidence of overfitting. The RMSE values show only marginal differences between training and testing sets, with test RMSE consistently within 0.001-0.003 units of training RMSE. Similarly, MAE values remain stable across train-test splits, and R square values show negligible degradation from training to testing. This pattern strongly suggests that each model generalizes effectively to unseen data, capturing genuine relationships in the data rather than merely fitting noise or idiosyncrasies present in the training set.
+  Across all seven models, the training and testing metrics demonstrate remarkably close alignment, indicating minimal evidence of overfitting. The RMSE values show only marginal differences between training and testing sets, with test RMSE consistently within 0.001-0.003 units of training RMSE. Similarly, MAE values remain stable across train-test splits, and R square values show negligible degradation from training to testing. This pattern strongly suggests that each model generalizes effectively to unseen data, capturing genuine relationships in the data rather than merely fitting noise or idiosyncrasies present in the training set.
 
 ### Assumption testing
 
@@ -1173,14 +1173,14 @@ check_vif <- function(model, data) {
 }
 ```
 
-To ensure the validity and reliability of our regression models, we conducted comprehensive diagnostic tests examining four key assumptions of linear regression: absence of multicollinearity, independence of residuals, normality of residuals, and homoscedasticity. The following sections present these diagnostic results and their implications for model validity.
+  To ensure the validity and reliability of our regression models, we conducted comprehensive diagnostic tests examining four key assumptions of linear regression: absence of multicollinearity, independence of residuals, normality of residuals, and homoscedasticity. The following sections present these diagnostic results and their implications for model validity.
 
 ### Multicolinearity Assessment: VIF
-Across Models 1 through 6, which use demographic predictors, all VIF values remain well within acceptable bounds. The vast majority of predictors exhibit VIF values between 1.0 and 1.9. The highest VIF values occur for age groups (AGE_GRP), which reach approximately 1.85, followed by immigrant status (IMM_STA) at 1.51, and income quintiles (HINCQUIN) and education levels (EDU) around 1.24-1.26. These modest values reflect the natural correlation structure among demographic variables. Importantly, all values remain well below the threshold of concern at 5, confirming that multicollinearity is not an issue.
+  Across Models 1 through 6, which use demographic predictors, all VIF values remain well within acceptable bounds. The vast majority of predictors exhibit VIF values between 1.0 and 1.9. The highest VIF values occur for age groups (AGE_GRP), which reach approximately 1.85, followed by immigrant status (IMM_STA) at 1.51, and income quintiles (HINCQUIN) and education levels (EDU) around 1.24-1.26. These modest values reflect the natural correlation structure among demographic variables. Importantly, all values remain well below the threshold of concern at 5, confirming that multicollinearity is not an issue.
 
-For Model 7, which uses continuous security score predictors, VIF values are remarkably low, ranging from 1.27 to 1.43. This indicates that the different security behavior dimensions capture distinct aspects of cybersecurity engagement rather than being redundant measures.
+  For Model 7, which uses continuous security score predictors, VIF values are remarkably low, ranging from 1.27 to 1.43. This indicates that the different security behavior dimensions capture distinct aspects of cybersecurity engagement rather than being redundant measures.
 
-Overall, the VIF analysis demonstrates that multicollinearity is not a concern in any of our models. Each predictor provides distinct information, and coefficient estimates are stable and interpretable.
+  Overall, the VIF analysis demonstrates that multicollinearity is not a concern in any of our models. Each predictor provides distinct information, and coefficient estimates are stable and interpretable.
 
 ```{r echo=FALSE}
 # Create VIF summary table showing max VIF for each model
@@ -1213,7 +1213,7 @@ kable(vif_summary,
 
 ### Independence of Residuals: Durbin-Watson Test
 
-```{r echo=FALSE}
+```{r echo=FALSE, results='hide'}
 lmtest::dwtest(mod1)
 lmtest::dwtest(mod2)
 lmtest::dwtest(mod3)
@@ -1222,13 +1222,13 @@ lmtest::dwtest(mod5)
 lmtest::dwtest(mod6)
 lmtest::dwtest(mod7)
 ```
-The Durbin-Watson (DW) test assesses whether residuals are autocorrelated—that is, whether the error from one observation is systematically related to errors from other observations. The DW statistic ranges from 0 to 4, with values near 2 indicating no autocorrelation, values substantially below 2 suggesting positive autocorrelation, and values substantially above 2 indicating negative autocorrelation. 
+  The Durbin-Watson (DW) test assesses whether residuals are autocorrelated—that is, whether the error from one observation is systematically related to errors from other observations. The DW statistic ranges from 0 to 4, with values near 2 indicating no autocorrelation, values substantially below 2 suggesting positive autocorrelation, and values substantially above 2 indicating negative autocorrelation. 
 
-Our Durbin-Watson test results consistently indicate that residual autocorrelation is not a concern across all seven models. Model 1 yields a DW statistic of 1.998 (p = 0.44), Model 2 produces DW = 2.004 (p = 0.63), Model 3 shows DW = 2.0205 (p = 0.94), Model 4 returns DW = 2.002 (p = 0.55), Model 5 gives DW = 2.015 (p = 0.86), Model 6 shows DW = 1.995 (p = 0.39), and Model 7 yields DW = 2.005 (p = 0.62). All DW statistics fall remarkably close to the ideal value of 2.0, and all p-values substantially exceed conventional significance thresholds, indicating failure to reject the null hypothesis of no autocorrelation.
+  Our Durbin-Watson test results consistently indicate that residual autocorrelation is not a concern across all seven models. Model 1 yields a DW statistic of 1.998 (p = 0.44), Model 2 produces DW = 2.004 (p = 0.63), Model 3 shows DW = 2.0205 (p = 0.94), Model 4 returns DW = 2.002 (p = 0.55), Model 5 gives DW = 2.015 (p = 0.86), Model 6 shows DW = 1.995 (p = 0.39), and Model 7 yields DW = 2.005 (p = 0.62). All DW statistics fall remarkably close to the ideal value of 2.0, and all p-values substantially exceed conventional significance thresholds, indicating failure to reject the null hypothesis of no autocorrelation.
 
-These results are entirely appropriate given the cross-sectional nature of our data. Since observations represent different individuals surveyed at a single time point rather than repeated measurements over time, there is no inherent temporal or spatial ordering that would produce systematic correlation among residuals. The absence of significant autocorrelation confirms that residuals behave as independent random errors, satisfying a key assumption of ordinary least squares regression. This independence validates our standard errors and hypothesis tests, ensuring that inferences about predictor significance are trustworthy.
+  These results are entirely appropriate given the cross-sectional nature of our data. Since observations represent different individuals surveyed at a single time point rather than repeated measurements over time, there is no inherent temporal or spatial ordering that would produce systematic correlation among residuals. The absence of significant autocorrelation confirms that residuals behave as independent random errors, satisfying a key assumption of ordinary least squares regression. This independence validates our standard errors and hypothesis tests, ensuring that inferences about predictor significance are trustworthy.
 
-```{r}
+```{r echo=FALSE}
 # Create a nice DW test summary table
 dw_results <- tibble(
   Model = c("Model 1: trustScore ~ Demographics", 
@@ -1251,19 +1251,19 @@ kable(dw_results,
 
 
 ### Normality of Residuals
-The normality assumption states that model residuals should follow a normal distribution. While regression is generally robust to modest violations of normality, especially with large samples, severe departures can affect the validity of confidence intervals and hypothesis tests. We assessed normality through visual inspection of Q-Q plots.
+  The normality assumption states that model residuals should follow a normal distribution. While regression is generally robust to modest violations of normality, especially with large samples, severe departures can affect the validity of confidence intervals and hypothesis tests. We assessed normality through visual inspection of Q-Q plots.
 
-Visual examination of Q-Q plots reveals varying degrees of adherence to normality across models. Models 1 and 7 show the strongest adherence to normality, with points clustering closely along the diagonal reference line throughout most of the distribution. Model 7 exhibits minor deviations in the extreme tails, typical in large datasets, but overall maintains good normality.
+  Visual examination of Q-Q plots reveals varying degrees of adherence to normality across models. Models 1 and 7 show the strongest adherence to normality, with points clustering closely along the diagonal reference line throughout most of the distribution. Model 7 exhibits minor deviations in the extreme tails, typical in large datasets, but overall maintains good normality.
 
-Model 5 displays moderate departures from normality, with some deviation from the diagonal line. Models 2, 3, 4, and 6 show more substantial departures from normality. These models exhibit distinctive banding or stratification patterns and S-shaped curvature in their Q-Q plots. For Models 3, 4, and 6, these patterns arise because their outcome variables—data security, ID security, and response scores—are proportion-based measures constructed from multiple binary indicators. Since respondents can only achieve certain discrete values, the distributions are inherently discrete rather than continuous, producing the observed patterns.
+  Model 5 displays moderate departures from normality, with some deviation from the diagonal line. Models 2, 3, 4, and 6 show more substantial departures from normality. These models exhibit distinctive banding or stratification patterns and S-shaped curvature in their Q-Q plots. For Models 3, 4, and 6, these patterns arise because their outcome variables—data security, ID security, and response scores—are proportion-based measures constructed from multiple binary indicators. Since respondents can only achieve certain discrete values, the distributions are inherently discrete rather than continuous, producing the observed patterns.
 
-With our large sample size, the Central Limit Theorem ensures that sampling distributions of coefficient estimates remain approximately normal even when residuals deviate from perfect normality. The deviations observed in Models 3, 4, and 6 are structural features of working with proportion scores rather than indicators of model misspecification.
+  With our large sample size, the Central Limit Theorem ensures that sampling distributions of coefficient estimates remain approximately normal even when residuals deviate from perfect normality. The deviations observed in Models 3, 4, and 6 are structural features of working with proportion scores rather than indicators of model misspecification.
 
-### Homoscedacityy: Constant variance of residuals
-The homoscedasticity assumption requires that residual variance remains constant across all levels of predictor variables. Violations, termed heteroscedasticity, do not bias coefficient estimates but can affect standard errors, potentially leading to incorrect inferences about statistical significance.
+### Homoscedasticity: Constant variance of residuals
+  The homoscedasticity assumption requires that residual variance remains constant across all levels of predictor variables. Violations, termed heteroscedasticity, do not bias coefficient estimates but can affect standard errors, potentially leading to incorrect inferences about statistical significance.
 The Residuals vs. Fitted plots provide visual evidence about variance constancy. Models 1 and 7 show relatively uniform scatter around zero across the range of fitted values, with no clear funneling or systematic changes in spread. This pattern is consistent with homoscedasticity, indicating constant variance of residuals.
 
-Models 2, 3, 4, 5, and 6 display evidence of heteroscedasticity. Model 2 shows pronounced banding with clear stratification, where residuals cluster into distinct horizontal bands rather than scattering uniformly. Models 3, 4, 5, and 6 exhibit strong diagonal banding patterns, where residuals form parallel lines across fitted values. These patterns arise from the discrete, proportion-based nature of the outcome variables in these models. Since respondents can only achieve certain discrete values (e.g., 0%, 25%, 50%, 75%, 100%), the residual variance is inherently non-constant—it is constrained near the boundaries and varies across the range of fitted values.
+  Models 2, 3, 4, 5, and 6 display evidence of heteroscedasticity. Model 2 shows pronounced banding with clear stratification, where residuals cluster into distinct horizontal bands rather than scattering uniformly. Models 3, 4, 5, and 6 exhibit strong diagonal banding patterns, where residuals form parallel lines across fitted values. These patterns arise from the discrete, proportion-based nature of the outcome variables in these models. Since respondents can only achieve certain discrete values (e.g., 0%, 25%, 50%, 75%, 100%), the residual variance is inherently non-constant—it is constrained near the boundaries and varies across the range of fitted values.
 
 ```{r echo=FALSE}
 par(mfrow = c(2, 4), mar = c(2.5, 2.5, 2, 1), oma = c(0, 0, 0, 0))
@@ -1347,7 +1347,7 @@ par(mfrow = c(1, 1), mar = c(5, 4, 4, 2), oma = c(0, 0, 0, 0))
 
 # 3.3 Additive Modelling
 
-## Top Co-Efficients of *Model 1* (`trustScore` ~ Demographics)
+## Top Coefficients of *Model 1* (`trustScore` ~ Demographics)
 
 ```{r Modelling 1, echo=FALSE}
 
@@ -1360,7 +1360,7 @@ kable(head(getSigCoefs(mod1), 7), digits=3)
 **Model 1** suggests that respondents with higher life satisfaction (`FD_G020A7`–`11`) tend to report greater digital trust, while older age groups (`AGE_GRP5`–`6`) show slightly lower trust levels in practice.
 
 
-## Top Co-Efficients of *Model 2* (`expoScore` ~ Demographics)
+## Top Coefficients of *Model 2* (`expoScore` ~ Demographics)
 
 ```{r Modelling 2, echo=FALSE}
 
@@ -1371,7 +1371,7 @@ kable(head(getSigCoefs(mod2), 5), digits=3)
 
 **Model 2** suggests that people with higher education levels (`EDU2`–`3`) tend to report greater exposure to cybersecurity incidents, while those with higher life satisfaction (`FD_G020A9`–`11`) report slightly lower exposure.
 
-## Top Co-Efficients of *Model 3* (`datSecScore` ~ Demographics)
+## Top Coefficients of *Model 3* (`datSecScore` ~ Demographics)
 
 ```{r Modelling 3, echo=FALSE}
 
@@ -1382,7 +1382,7 @@ kable(head(getSigCoefs(mod3), 5), digits=3)
 
 The results in **Model 3** indicate that older adults (`AGE_GRP4`–`6`) engage in markedly fewer personal data-protection behaviours, while higher-educated respondents (`EDU2`–`3`) do more—showing a strong education gradient alongside a noticeable age-related decline.
 
-## Top Co-Efficients of *Model 4* (`idSecScore` ~ Demographics)
+## Top Coefficients of *Model 4* (`idSecScore` ~ Demographics)
 
 ```{r Modelling 4, echo=FALSE}
 
@@ -1391,7 +1391,7 @@ kable(head(getSigCoefs(mod4), 5), digits=3)
 
 Findings in **Model 4** show that older age groups (`AGE_GRP4`–`6`) use fewer ID-security measures, whereas more educated individuals (`EDU2`–`3`) adopt significantly more, reinforcing a consistent pattern where education boosts digital security uptake as age reduces it.
 
-## Top Co-Efficients of *Model 5* (`pcSecScore` ~ Demographics)
+## Top Coefficients of *Model 5* (`pcSecScore` ~ Demographics)
 
 ```{r Modelling 5, echo=FALSE}
 
@@ -1402,7 +1402,7 @@ kable(head(getSigCoefs(mod5), 5), digits=3)
 
 **Model 5** highlights that PC/laptop protection measures are most common among higher-educated respondents (`EDU2`–`3`), with smaller increases among men (`GENDER1`) and those reporting higher life satisfaction (`FD_G020A8`–`9`), suggesting both social and attitudinal influences.
 
-## Top Co-Efficients of *Model 6* (`responseScore` ~ Demographics)
+## Top Coefficients of *Model 6* (`responseScore` ~ Demographics)
 
 ```{r Modelling 6, echo=FALSE}
 
@@ -1413,7 +1413,7 @@ kable(head(getSigCoefs(mod6), 5), digits=3)
 
 Here, disabled respondents (`DIS_101`), more educated individuals (`EDU2`–`EDU3`), and Indigenous respondents (`ABM1`) were more likely to take action after cyber incidents—an interesting pattern that points to greater response activity among groups who often face higher digital risk.
 
-## Top Co-Efficients of *Model 7* (`trustScore` ~ Demographics)
+## Top Coefficients of *Model 7* (`trustScore` ~ Demographics)
 
 ```{r Modelling 7, echo=FALSE}
 
@@ -1507,15 +1507,15 @@ kable(cv_summary, digits = 4)
 
 
 ```
-To assess model performance and stability, we applied K-fold cross-validation to all seven models. This approach allowed us to estimate prediction error and variance explained across multiple splits of the data, ensuring that performance metrics were not dependent on a single train-test partition. We report RMSE (Root Mean Squared Error), MAE (Mean Absolute Error), and R-Squared (coefficient of determination) for each model.
+  To assess model performance and stability, we applied K-fold cross-validation to all seven models. This approach allowed us to estimate prediction error and variance explained across multiple splits of the data, ensuring that performance metrics were not dependent on a single train-test partition. We report RMSE (Root Mean Squared Error), MAE (Mean Absolute Error), and R-Squared (coefficient of determination) for each model.
 
-Across the seven models, there is notable variation in both predictive accuracy and variance explained. Models 2 and 7 achieve the lowest mean RMSE (0.151 and 0.163, respectively) and MAE (0.118 and 0.126), indicating that these models produce the most precise predictions. However, their mean R-Squared values are modest (0.067 for Model 2 and 0.045 for Model 7), suggesting that while predictions closely match observed values on average, the models capture only a small portion of the outcome variance.
+  Across the seven models, there is notable variation in both predictive accuracy and variance explained. Models 2 and 7 achieve the lowest mean RMSE (0.151 and 0.163, respectively) and MAE (0.118 and 0.126), indicating that these models produce the most precise predictions. However, their mean R-Squared values are modest (0.067 for Model 2 and 0.045 for Model 7), suggesting that while predictions closely match observed values on average, the models capture only a small portion of the outcome variance.
 
-Model 4, in contrast, exhibits the highest mean R-Squared (0.191), indicating it explains more variance in the outcome than the other models. This higher explanatory power comes with slightly higher prediction error (mean RMSE = 0.253, mean MAE = 0.211), reflecting the common trade-off between minimizing prediction error and maximizing variance explained. Models 1, 5, and 6 show intermediate performance, balancing modest error with limited variance explained. Model 3 performs poorest in predictive accuracy (mean RMSE = 0.359, mean MAE = 0.310) despite slightly higher R² than some low-error models, suggesting that although it captures certain trends, its predictions are less precise overall.
+  Model 4, in contrast, exhibits the highest mean R-Squared (0.191), indicating it explains more variance in the outcome than the other models. This higher explanatory power comes with slightly higher prediction error (mean RMSE = 0.253, mean MAE = 0.211), reflecting the common trade-off between minimizing prediction error and maximizing variance explained. Models 1, 5, and 6 show intermediate performance, balancing modest error with limited variance explained. Model 3 performs poorest in predictive accuracy (mean RMSE = 0.359, mean MAE = 0.310) despite slightly higher R² than some low-error models, suggesting that although it captures certain trends, its predictions are less precise overall.
 
-In addition, the range of metrics across folds further illustrates model stability. Most models show relatively narrow RMSE and MAE ranges, which indicates a consistent performance across different data splits. Model 6 displays slightly higher RMSE variability (0.186 - 0.203), suggesting its predictions are somewhat sensitive to the particular training/test split.
+  In addition, the range of metrics across folds further illustrates model stability. Most models show relatively narrow RMSE and MAE ranges, which indicates a consistent performance across different data splits. Model 6 displays slightly higher RMSE variability (0.186 - 0.203), suggesting its predictions are somewhat sensitive to the particular training/test split.
 
-Overall, these results indicate that Models 2 and 7 provide the best predictive accuracy, while Model 4 is strongest at explaining outcome variance. This highlights the trade-off between precision and explanatory power: the choice of model should align with the analytic goal, whether prioritizing accurate predictions or understanding the variance in outcomes.
+  Overall, these results indicate that Models 2 and 7 provide the best predictive accuracy, while Model 4 is strongest at explaining outcome variance. This highlights the trade-off between precision and explanatory power: the choice of model should align with the analytic goal, whether prioritizing accurate predictions or understanding the variance in outcomes.
 
 # 3.5 Train-Test Split
 
