@@ -1182,12 +1182,73 @@ For Model 7, which uses continuous security score predictors, VIF values are rem
 
 Overall, the VIF analysis demonstrates that multicollinearity is not a concern in any of our models. Each predictor provides distinct information, and coefficient estimates are stable and interpretable.
 
+```{r echo=FALSE}
+# Create VIF summary table showing max VIF for each model
+vif_summary <- tibble(
+  Model = c("Model 1: trustScore ~ Demographics", 
+            "Model 2: expoScore ~ Demographics", 
+            "Model 3: datSecScore ~ Demographics", 
+            "Model 4: idSecScore ~ Demographics", 
+            "Model 5: pcSecScore ~ Demographics", 
+            "Model 6: responseScore ~ Demographics", 
+            "Model 7: trustScore ~ All Other Scores"),
+  Max_VIF = c(
+    max(car::vif(mod1)[, "GVIF^(1/(2*Df))"]),
+    max(car::vif(mod2)[, "GVIF^(1/(2*Df))"]),
+    max(car::vif(mod3)[, "GVIF^(1/(2*Df))"]),
+    max(car::vif(mod4)[, "GVIF^(1/(2*Df))"]),
+    max(car::vif(mod5)[, "GVIF^(1/(2*Df))"]),
+    max(car::vif(mod6)[, "GVIF^(1/(2*Df))"]),
+    max(car::vif(mod7))  # mod7 returns simple vector
+  )
+)
+
+kable(vif_summary, 
+      digits = 3,
+      col.names = c("Model", "Max VIF"),
+      caption = "Maximum VIF Values Across Models") %>%
+  kable_styling(full_width = FALSE, font_size = 14)
+```
+
+
 ### Independence of Residuals: Durbin-Watson Test
+
+```{r echo=FALSE}
+lmtest::dwtest(mod1)
+lmtest::dwtest(mod2)
+lmtest::dwtest(mod3)
+lmtest::dwtest(mod4)
+lmtest::dwtest(mod5)
+lmtest::dwtest(mod6)
+lmtest::dwtest(mod7)
+```
 The Durbin-Watson (DW) test assesses whether residuals are autocorrelated—that is, whether the error from one observation is systematically related to errors from other observations. The DW statistic ranges from 0 to 4, with values near 2 indicating no autocorrelation, values substantially below 2 suggesting positive autocorrelation, and values substantially above 2 indicating negative autocorrelation. 
 
 Our Durbin-Watson test results consistently indicate that residual autocorrelation is not a concern across all seven models. Model 1 yields a DW statistic of 1.998 (p = 0.44), Model 2 produces DW = 2.004 (p = 0.63), Model 3 shows DW = 2.0205 (p = 0.94), Model 4 returns DW = 2.002 (p = 0.55), Model 5 gives DW = 2.015 (p = 0.86), Model 6 shows DW = 1.995 (p = 0.39), and Model 7 yields DW = 2.005 (p = 0.62). All DW statistics fall remarkably close to the ideal value of 2.0, and all p-values substantially exceed conventional significance thresholds, indicating failure to reject the null hypothesis of no autocorrelation.
 
 These results are entirely appropriate given the cross-sectional nature of our data. Since observations represent different individuals surveyed at a single time point rather than repeated measurements over time, there is no inherent temporal or spatial ordering that would produce systematic correlation among residuals. The absence of significant autocorrelation confirms that residuals behave as independent random errors, satisfying a key assumption of ordinary least squares regression. This independence validates our standard errors and hypothesis tests, ensuring that inferences about predictor significance are trustworthy.
+
+```{r}
+# Create a nice DW test summary table
+dw_results <- tibble(
+  Model = c("Model 1: trustScore ~ Demographics", 
+            "Model 2: expoScore ~ Demographics", 
+            "Model 3: datSecScore ~ Demographics", 
+            "Model 4: idSecScore ~ Demographics", 
+            "Model 5: pcSecScore ~ Demographics", 
+            "Model 6: responseScore ~ Demographics", 
+            "Model 7: trustScore ~ All Other Scores"),
+  DW_Statistic = c(1.998, 2.004, 2.021, 2.002, 2.015, 1.995, 2.005),
+  p_value = c(0.439, 0.627, 0.934, 0.552, 0.856, 0.387, 0.621)
+)
+
+kable(dw_results, 
+      digits = 3,
+      col.names = c("Model", "DW Statistic", "p-value"),
+      caption = "Durbin-Watson Test Results for Autocorrelation") %>%
+  kable_styling(full_width = FALSE, font_size = 14)
+```
+
 
 ### Normality of Residuals
 The normality assumption states that model residuals should follow a normal distribution. While regression is generally robust to modest violations of normality, especially with large samples, severe departures can affect the validity of confidence intervals and hypothesis tests. We assessed normality through visual inspection of Q-Q plots.
@@ -1205,9 +1266,9 @@ The Residuals vs. Fitted plots provide visual evidence about variance constancy.
 Models 2, 3, 4, 5, and 6 display evidence of heteroscedasticity. Model 2 shows pronounced banding with clear stratification, where residuals cluster into distinct horizontal bands rather than scattering uniformly. Models 3, 4, 5, and 6 exhibit strong diagonal banding patterns, where residuals form parallel lines across fitted values. These patterns arise from the discrete, proportion-based nature of the outcome variables in these models. Since respondents can only achieve certain discrete values (e.g., 0%, 25%, 50%, 75%, 100%), the residual variance is inherently non-constant—it is constrained near the boundaries and varies across the range of fitted values.
 
 ```{r echo=FALSE}
-par(mfrow = c(4, 2), mar = c(2.5, 2.5, 2, 1), oma = c(0, 0, 0, 0))
+par(mfrow = c(2, 4), mar = c(2.5, 2.5, 2, 1), oma = c(0, 0, 0, 0))
 
-# Model 1
+
 model1 <- if ("lm_robust" %in% class(mod1)) lm(mod1$terms, data = df) else mod1
 qqnorm(residuals(model1), main = "Q-Q Plot: mod1", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
        xlab = "", ylab = "", cex.main = 1.1)
@@ -1217,7 +1278,7 @@ plot(fitted(model1), residuals(model1), xlab = "", ylab = "",
      cex.main = 1.1)
 abline(h = 0, col = "red")
 
-# Model 2
+
 model2 <- if ("lm_robust" %in% class(mod2)) lm(mod2$terms, data = df) else mod2
 qqnorm(residuals(model2), main = "Q-Q Plot: mod2", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
        xlab = "", ylab = "", cex.main = 1.1)
@@ -1227,7 +1288,7 @@ plot(fitted(model2), residuals(model2), xlab = "", ylab = "",
      cex.main = 1.1)
 abline(h = 0, col = "red")
 
-# Model 3
+
 model3 <- if ("lm_robust" %in% class(mod3)) lm(mod3$terms, data = df) else mod3
 qqnorm(residuals(model3), main = "Q-Q Plot: mod3", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
        xlab = "", ylab = "", cex.main = 1.1)
@@ -1237,7 +1298,7 @@ plot(fitted(model3), residuals(model3), xlab = "", ylab = "",
      cex.main = 1.1)
 abline(h = 0, col = "red")
 
-# Model 4
+#Model4
 model4 <- if ("lm_robust" %in% class(mod4)) lm(mod4$terms, data = df) else mod4
 qqnorm(residuals(model4), main = "Q-Q Plot: mod4", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
        xlab = "", ylab = "", cex.main = 1.1)
@@ -1246,6 +1307,10 @@ plot(fitted(model4), residuals(model4), xlab = "", ylab = "",
      main = "Residuals vs Fitted: mod4", col = rgb(0, 0, 0, 0.25), pch = 16, cex = 0.6,
      cex.main = 1.1)
 abline(h = 0, col = "red")
+
+par(mfrow = c(1, 1), mar = c(5, 4, 4, 2), oma = c(0, 0, 0, 0))
+
+par(mfrow = c(2, 4), mar = c(2.5, 2.5, 2, 1), oma = c(0, 0, 0, 0))
 
 # Model 5
 model5 <- if ("lm_robust" %in% class(mod5)) lm(mod5$terms, data = df) else mod5
