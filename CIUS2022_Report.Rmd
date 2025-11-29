@@ -1259,7 +1259,7 @@ Model 5 displays moderate departures from normality, with some deviation from th
 
 With our large sample size, the Central Limit Theorem ensures that sampling distributions of coefficient estimates remain approximately normal even when residuals deviate from perfect normality. The deviations observed in Models 3, 4, and 6 are structural features of working with proportion scores rather than indicators of model misspecification.
 
-### Homoscedacityy: Constant variance of residuals
+### Homoscedacity: Constant variance of residuals
 The homoscedasticity assumption requires that residual variance remains constant across all levels of predictor variables. Violations, termed heteroscedasticity, do not bias coefficient estimates but can affect standard errors, potentially leading to incorrect inferences about statistical significance.
 The Residuals vs. Fitted plots provide visual evidence about variance constancy. Models 1 and 7 show relatively uniform scatter around zero across the range of fitted values, with no clear funneling or systematic changes in spread. This pattern is consistent with homoscedasticity, indicating constant variance of residuals.
 
@@ -1424,100 +1424,7 @@ kable(head(getSigCoefs(mod7), 5), digits=3)
 
 Finally, **Model 7** shows that trust is highest among those with stronger ID-security practices (`idSecScore`) and lowest among individuals with greater exposure to incidents (`expoScore`) or weaker data-protection habits (`datSecScore`).
 
-# 3.4 K-Fold Cross-Validation
-
-```{r cross validation summary table, echo = FALSE}
-
-# Create folds
-set.seed(123)
-folds <- vfold_cv(df, v = 10)
-
-# Cross-validation function
-cv_linear_model <- function(outcome, predictors) {
-
-  f <- reformulate(predictors, response = outcome)
-
-  mod <- linear_reg() %>%
-    set_engine("lm")
-
-  wf <- workflow() %>%
-    add_model(mod) %>%
-    add_formula(f)
-
-  fit_resamples(
-    wf,
-    resamples = folds,
-    metrics = metric_set(rmse, mae, rsq)
-  )
-}
-
-# Fit the 7 CV models
-varsScoresPred <- c("datSecScore", "idSecScore", "pcSecScore",
-                    "expoScore", "responseScore")
-
-cv_mod1 <- cv_linear_model("trustScore", varsDemo)
-cv_mod2 <- cv_linear_model("expoScore", varsDemo)
-cv_mod3 <- cv_linear_model("datSecScore", varsDemo)
-cv_mod4 <- cv_linear_model("idSecScore", varsDemo)
-cv_mod5 <- cv_linear_model("pcSecScore", varsDemo)
-cv_mod6 <- cv_linear_model("responseScore", varsDemo)
-cv_mod7 <- cv_linear_model("trustScore", varsScoresPred)
-
-
-# Helper to compute min/mean/max per metric for each model
-summarize_cv_stats <- function(cv_obj, model_name) {
-  cv_obj %>%
-    collect_metrics(summarize = FALSE) %>%   # keep per-fold values
-    select(.metric, .estimate) %>%
-    group_by(.metric) %>%
-    summarise(
-      min  = min(.estimate, na.rm = TRUE),
-      mean = mean(.estimate, na.rm = TRUE),
-      max  = max(.estimate, na.rm = TRUE),
-      .groups = "drop"
-    ) %>%
-    tidyr::pivot_wider(
-      names_from = .metric,
-      values_from = c(min, mean, max),
-      names_glue = "{.metric}_{.value}"
-    ) %>%
-    mutate(model = model_name) %>%
-    select(
-      model,
-      rmse_min,  rmse_mean,  rmse_max,
-      mae_min,   mae_mean,   mae_max,
-      rsq_min,   rsq_mean,   rsq_max
-    )
-}
-
-
-# Combine all 7 models into one table
-cv_summary <- bind_rows(
-  summarize_cv_stats(cv_mod1, "Model 1"),
-  summarize_cv_stats(cv_mod2, "Model 2"),
-  summarize_cv_stats(cv_mod3, "Model 3"),
-  summarize_cv_stats(cv_mod4, "Model 4"),
-  summarize_cv_stats(cv_mod5, "Model 5"),
-  summarize_cv_stats(cv_mod6, "Model 6"),
-  summarize_cv_stats(cv_mod7, "Model 7")
-)
-
-# Output as a kable table
-kable(cv_summary, digits = 4) 
-
-
-```
-To assess model performance and stability, we applied K-fold cross-validation to all seven models. This approach allowed us to estimate prediction error and variance explained across multiple splits of the data, ensuring that performance metrics were not dependent on a single train-test partition. We report RMSE (Root Mean Squared Error), MAE (Mean Absolute Error), and R-Squared (coefficient of determination) for each model.
-
-Across the seven models, there is notable variation in both predictive accuracy and variance explained. Models 2 and 7 achieve the lowest mean RMSE (0.151 and 0.163, respectively) and MAE (0.118 and 0.126), indicating that these models produce the most precise predictions. However, their mean R-Squared values are modest (0.067 for Model 2 and 0.045 for Model 7), suggesting that while predictions closely match observed values on average, the models capture only a small portion of the outcome variance.
-
-Model 4, in contrast, exhibits the highest mean R-Squared (0.191), indicating it explains more variance in the outcome than the other models. This higher explanatory power comes with slightly higher prediction error (mean RMSE = 0.253, mean MAE = 0.211), reflecting the common trade-off between minimizing prediction error and maximizing variance explained. Models 1, 5, and 6 show intermediate performance, balancing modest error with limited variance explained. Model 3 performs poorest in predictive accuracy (mean RMSE = 0.359, mean MAE = 0.310) despite slightly higher R² than some low-error models, suggesting that although it captures certain trends, its predictions are less precise overall.
-
-In addition, the range of metrics across folds further illustrates model stability. Most models show relatively narrow RMSE and MAE ranges, which indicates a consistent performance across different data splits. Model 6 displays slightly higher RMSE variability (0.186 - 0.203), suggesting its predictions are somewhat sensitive to the particular training/test split.
-
-Overall, these results indicate that Models 2 and 7 provide the best predictive accuracy, while Model 4 is strongest at explaining outcome variance. This highlights the trade-off between precision and explanatory power: the choice of model should align with the analytic goal, whether prioritizing accurate predictions or understanding the variance in outcomes.
-
-# 3.5 Train-Test Split
+# 3.4 Train-Test Split
 
 ```{r train test comparison, echo = FALSE}
 
@@ -1652,6 +1559,100 @@ Model 4, which previously showed the highest variance explained in cross-validat
 The remaining models (3, 5, and 6) display moderate differences in RMSE and MAE between training and test sets, but the discrepancies are small, generally on the order of 0.002 - 0.006. For example, Model 6 has an RMSE of 0.1911 on training data versus 0.1878 on the test set, and R² drops slightly from 0.0179 to 0.0132. These small differences indicate that the models are stable and predictions are not strongly dependent on the specific sample used for training.
 
 Overall, the Train-Test Split results confirm the patterns observed in cross-validation: Models 2 and 7 excel at minimizing prediction error, while Model 4 captures the most variance. The similarity between training and test metrics suggests that all models generalize well to unseen data, and there is no evidence of substantial overfitting.
+
+# 3.5 10-Fold Cross-Validation
+
+```{r cross validation summary table, echo = FALSE}
+
+# Create folds
+set.seed(123)
+folds <- vfold_cv(df, v = 10)
+
+# Cross-validation function
+cv_linear_model <- function(outcome, predictors) {
+
+  f <- reformulate(predictors, response = outcome)
+
+  mod <- linear_reg() %>%
+    set_engine("lm")
+
+  wf <- workflow() %>%
+    add_model(mod) %>%
+    add_formula(f)
+
+  fit_resamples(
+    wf,
+    resamples = folds,
+    metrics = metric_set(rmse, mae, rsq)
+  )
+}
+
+# Fit the 7 CV models
+varsScoresPred <- c("datSecScore", "idSecScore", "pcSecScore",
+                    "expoScore", "responseScore")
+
+cv_mod1 <- cv_linear_model("trustScore", varsDemo)
+cv_mod2 <- cv_linear_model("expoScore", varsDemo)
+cv_mod3 <- cv_linear_model("datSecScore", varsDemo)
+cv_mod4 <- cv_linear_model("idSecScore", varsDemo)
+cv_mod5 <- cv_linear_model("pcSecScore", varsDemo)
+cv_mod6 <- cv_linear_model("responseScore", varsDemo)
+cv_mod7 <- cv_linear_model("trustScore", varsScoresPred)
+
+
+# Helper to compute min/mean/max per metric for each model
+summarize_cv_stats <- function(cv_obj, model_name) {
+  cv_obj %>%
+    collect_metrics(summarize = FALSE) %>%   # keep per-fold values
+    select(.metric, .estimate) %>%
+    group_by(.metric) %>%
+    summarise(
+      min  = min(.estimate, na.rm = TRUE),
+      mean = mean(.estimate, na.rm = TRUE),
+      max  = max(.estimate, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    tidyr::pivot_wider(
+      names_from = .metric,
+      values_from = c(min, mean, max),
+      names_glue = "{.metric}_{.value}"
+    ) %>%
+    mutate(model = model_name) %>%
+    select(
+      model,
+      rmse_min,  rmse_mean,  rmse_max,
+      mae_min,   mae_mean,   mae_max,
+      rsq_min,   rsq_mean,   rsq_max
+    )
+}
+
+
+# Combine all 7 models into one table
+cv_summary <- bind_rows(
+  summarize_cv_stats(cv_mod1, "Model 1"),
+  summarize_cv_stats(cv_mod2, "Model 2"),
+  summarize_cv_stats(cv_mod3, "Model 3"),
+  summarize_cv_stats(cv_mod4, "Model 4"),
+  summarize_cv_stats(cv_mod5, "Model 5"),
+  summarize_cv_stats(cv_mod6, "Model 6"),
+  summarize_cv_stats(cv_mod7, "Model 7")
+)
+
+# Output as a kable table
+kable(cv_summary, digits = 4) 
+
+
+```
+To assess model performance and stability, we applied K-fold cross-validation to all seven models. This approach allowed us to estimate prediction error and variance explained across multiple splits of the data, ensuring that performance metrics were not dependent on a single train-test partition. We report RMSE (Root Mean Squared Error), MAE (Mean Absolute Error), and R-Squared (coefficient of determination) for each model.
+
+Across the seven models, there is notable variation in both predictive accuracy and variance explained. Models 2 and 7 achieve the lowest mean RMSE (0.151 and 0.163, respectively) and MAE (0.118 and 0.126), indicating that these models produce the most precise predictions. However, their mean R-Squared values are modest (0.067 for Model 2 and 0.045 for Model 7), suggesting that while predictions closely match observed values on average, the models capture only a small portion of the outcome variance.
+
+Model 4, in contrast, exhibits the highest mean R-Squared (0.191), indicating it explains more variance in the outcome than the other models. This higher explanatory power comes with slightly higher prediction error (mean RMSE = 0.253, mean MAE = 0.211), reflecting the common trade-off between minimizing prediction error and maximizing variance explained. Models 1, 5, and 6 show intermediate performance, balancing modest error with limited variance explained. Model 3 performs poorest in predictive accuracy (mean RMSE = 0.359, mean MAE = 0.310) despite slightly higher R² than some low-error models, suggesting that although it captures certain trends, its predictions are less precise overall.
+
+In addition, the range of metrics across folds further illustrates model stability. Most models show relatively narrow RMSE and MAE ranges, which indicates a consistent performance across different data splits. Model 6 displays slightly higher RMSE variability (0.186 - 0.203), suggesting its predictions are somewhat sensitive to the particular training/test split.
+
+Overall, these results indicate that Models 2 and 7 provide the best predictive accuracy, while Model 4 is strongest at explaining outcome variance. This highlights the trade-off between precision and explanatory power: the choice of model should align with the analytic goal, whether prioritizing accurate predictions or understanding the variance in outcomes.
+
 
 # IV Discussion & Key Takeaways
 
